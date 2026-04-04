@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from chat import ask_bot
 from database import execute_query, get_connection
-
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 app = FastAPI()
 
 app.add_middleware(
@@ -11,6 +12,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/app")
+def serve_frontend():
+    return FileResponse("index.html")
 
 @app.get("/")
 def home():
