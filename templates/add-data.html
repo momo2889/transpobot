@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter Données - TranspoBot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --bg-gradient: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+            --glass-bg: rgba(30, 41, 59, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --accent-primary: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --status-green: #10b981;
+            --status-orange: #f59e0b;
+            --status-red: #ef4444;
+            --success: #10b981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient background blobs */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        body::before {
+            top: -150px; left: -150px;
+            width: 500px; height: 500px;
+            background: var(--accent-primary);
+            filter: blur(150px); opacity: 0.15;
+        }
+        body::after {
+            bottom: -150px; right: -150px;
+            width: 600px; height: 600px;
+            background: #8b5cf6;
+            filter: blur(200px); opacity: 0.12;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            width: 100%; height: 100vh;
+            position: relative; z-index: 1;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            display: flex; flex-direction: column; align-items: center; padding: 2rem 0; gap: 2rem;
+            z-index: 10;
+        }
+        .sidebar .logo {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--accent-primary), #8b5cf6);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 20px var(--accent-glow);
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+        }
+        .nav-items { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
+        .nav-item {
+            width: 48px; height: 48px;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); cursor: pointer; transition: 0.3s ease; position: relative;
+        }
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-main); background: rgba(255,255,255,0.08);
+        }
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            height: 24px; width: 4px; background: var(--accent-primary); border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2.5rem 3rem; overflow-y: auto; scroll-behavior: smooth;
+        }
+
+        .header {
+            margin-bottom: 2.5rem;
+        }
+        .header h1 {
+            font-size: 2rem; font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #94a3b8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .header p { color: var(--text-muted); font-size: 1rem; margin-top: 6px; font-weight: 300; }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+            border-radius: 20px; padding: 1.8rem; margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .glass-card h2 {
+            font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem;
+            display: flex; align-items: center; gap: 10px; color: #f8fafc;
+        }
+        .glass-card h2 i { color: var(--accent-primary); }
+
+        /* Form Styles */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;
+            padding-top: 2rem; border-top: 1px solid var(--glass-border);
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), #2563eb);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem; border-radius: 12px;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            color: var(--text-muted); cursor: pointer; transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .tab-btn.active {
+            background: var(--accent-primary); color: white; border-color: var(--accent-primary);
+        }
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.08); color: var(--text-main);
+        }
+
+        /* Messages */
+        .message {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--status-red);
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .loading span {
+            width: 8px;
+            height: 8px;
+            background: currentColor;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading span:nth-child(1) { animation-delay: -0.32s; }
+        .loading span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { flex-direction: row; height: 70px; padding: 0 1rem; justify-content: space-between; position: fixed; bottom: 0; width: 100%; border-right: none; border-top: 1px solid rgba(255,255,255,0.05); }
+            .sidebar .logo { width: 40px; height: 40px; font-size: 1.2rem; margin:0; }
+            .nav-items { flex-direction: row; flex: unset; gap: 0.5rem; }
+            .nav-item { width: 40px; height: 40px; }
+            .nav-item.active::before { top: 0; left: 50%; width: 20px; height: 4px; transform: translateX(-50%); border-radius: 0 0 4px 4px; }
+            .main-content { padding: 1.5rem; padding-bottom: 100px; }
+            .header h1 { font-size: 1.6rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="logo" onclick="window.location.href='/dashboard'">
+                <i data-lucide="bus" style="color:white; width: 24px;"></i>
+            </div>
+            <div class="nav-items">
+                <div class="nav-item" title="Dashboard" onclick="window.location.href='/dashboard'">
+                    <i data-lucide="layout-dashboard"></i>
+                </div>
+                <div class="nav-item" title="Stations" onclick="window.location.href='/stations'">
+                    <i data-lucide="map-pin"></i>
+                </div>
+                <div class="nav-item" title="Maintenance" onclick="window.location.href='/maintenance'">
+                    <i data-lucide="wrench"></i>
+                </div>
+                <div class="nav-item active" title="Ajouter Données">
+                    <i data-lucide="plus-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Ajouter des Données</h1>
+                <p>Ajoutez de nouvelles données à votre système de transport</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('vehicle')">Véhicule</button>
+                <button class="tab-btn" onclick="showTab('driver')">Chauffeur</button>
+                <button class="tab-btn" onclick="showTab('line')">Ligne</button>
+                <button class="tab-btn" onclick="showTab('trip')">Trajet</button>
+                <button class="tab-btn" onclick="showTab('maintenance')">Maintenance</button>
+            </div>
+
+            <!-- Messages -->
+            <div id="messages"></div>
+
+            <!-- Vehicle Form -->
+            <div id="vehicle-tab" class="tab-content">
+                <div class="glass-card">
+                    <h2><i data-lucide="truck"></i> Ajouter un Véhicule</h2>
+                    <form id="vehicle-form" class="form-grid">
+                        <div class="form-group">
+                            <label for="vehicle-immatriculation">Immatriculation *</label>
+                            <input type="text" id="vehicle-immatriculation" name="immatriculation" placeholder="Ex: DK-1234-AB" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicle-type">Type *</label>
+                            <select id="vehicle-type" name="type" required>
+                                <option value="">Sélectionner un type</option>
+                                <option value="bus">Bus</option>
+                                <option value="minibus">Minibus</option>
+                                <option value="taxi">Taxi</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicle-capacite">Capacité *</label>
+                            <input type="number" id="vehicle-capacite" name="capacite" placeholder="Ex: 60" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicle-kilometrage">Kilométrage</label>
+                            <input type="number" id="vehicle-kilometrage" name="kilometrage" placeholder="Ex: 45000">
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicle-date-acquisition">Date d'acquisition</label>
+                            <input type="date" id="vehicle-date-acquisition" name="date_acquisition">
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicle-statut">Statut</label>
+                            <select id="vehicle-statut" name="statut">
+                                <option value="actif">Actif</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="hors_service">Hors service</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm('vehicle-form')">Annuler</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="plus"></i>
+                                Ajouter Véhicule
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Driver Form -->
+            <div id="driver-tab" class="tab-content" style="display: none;">
+                <div class="glass-card">
+                    <h2><i data-lucide="user"></i> Ajouter un Chauffeur</h2>
+                    <form id="driver-form" class="form-grid">
+                        <div class="form-group">
+                            <label for="driver-nom">Nom *</label>
+                            <input type="text" id="driver-nom" name="nom" placeholder="Ex: DIOP" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="driver-prenom">Prénom *</label>
+                            <input type="text" id="driver-prenom" name="prenom" placeholder="Ex: Mamadou" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="driver-telephone">Téléphone</label>
+                            <input type="tel" id="driver-telephone" name="telephone" placeholder="Ex: +221771234567">
+                        </div>
+                        <div class="form-group">
+                            <label for="driver-numero-permis">Numéro de permis *</label>
+                            <input type="text" id="driver-numero-permis" name="numero_permis" placeholder="Ex: P-2019-001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="driver-categorie-permis">Catégorie de permis</label>
+                            <select id="driver-categorie-permis" name="categorie_permis">
+                                <option value="B">B</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="driver-date-embauche">Date d'embauche</label>
+                            <input type="date" id="driver-date-embauche" name="date_embauche">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm('driver-form')">Annuler</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="plus"></i>
+                                Ajouter Chauffeur
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Line Form -->
+            <div id="line-tab" class="tab-content" style="display: none;">
+                <div class="glass-card">
+                    <h2><i data-lucide="route"></i> Ajouter une Ligne</h2>
+                    <form id="line-form" class="form-grid">
+                        <div class="form-group">
+                            <label for="line-code">Code *</label>
+                            <input type="text" id="line-code" name="code" placeholder="Ex: L5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="line-nom">Nom</label>
+                            <input type="text" id="line-nom" name="nom" placeholder="Ex: Ligne Dakar-Keur Massar">
+                        </div>
+                        <div class="form-group">
+                            <label for="line-origine">Origine *</label>
+                            <input type="text" id="line-origine" name="origine" placeholder="Ex: Dakar" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="line-destination">Destination *</label>
+                            <input type="text" id="line-destination" name="destination" placeholder="Ex: Thiès" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="line-distance">Distance (km)</label>
+                            <input type="number" step="0.1" id="line-distance" name="distance_km" placeholder="Ex: 70.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="line-duree">Durée (minutes)</label>
+                            <input type="number" id="line-duree" name="duree_minutes" placeholder="Ex: 90">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm('line-form')">Annuler</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="plus"></i>
+                                Ajouter Ligne
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Trip Form -->
+            <div id="trip-tab" class="tab-content" style="display: none;">
+                <div class="glass-card">
+                    <h2><i data-lucide="navigation"></i> Ajouter un Trajet</h2>
+                    <form id="trip-form" class="form-grid">
+                        <div class="form-group">
+                            <label for="trip-ligne">Ligne *</label>
+                            <select id="trip-ligne" name="ligne_id" required>
+                                <option value="">Sélectionner une ligne</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="trip-chauffeur">Chauffeur *</label>
+                            <select id="trip-chauffeur" name="chauffeur_id" required>
+                                <option value="">Sélectionner un chauffeur</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="trip-vehicule">Véhicule *</label>
+                            <select id="trip-vehicule" name="vehicule_id" required>
+                                <option value="">Sélectionner un véhicule</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="trip-date-depart">Date et heure de départ *</label>
+                            <input type="datetime-local" id="trip-date-depart" name="date_heure_depart" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="trip-nb-passagers">Nombre de passagers</label>
+                            <input type="number" id="trip-nb-passagers" name="nb_passagers" placeholder="Ex: 45">
+                        </div>
+                        <div class="form-group">
+                            <label for="trip-statut">Statut</label>
+                            <select id="trip-statut" name="statut">
+                                <option value="planifie">Planifié</option>
+                                <option value="en_cours">En cours</option>
+                                <option value="termine">Terminé</option>
+                                <option value="annule">Annulé</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm('trip-form')">Annuler</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="plus"></i>
+                                Ajouter Trajet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Maintenance Form -->
+            <div id="maintenance-tab" class="tab-content" style="display: none;">
+                <div class="glass-card">
+                    <h2><i data-lucide="wrench"></i> Ajouter une Maintenance</h2>
+                    <form id="maintenance-form" class="form-grid">
+                        <div class="form-group">
+                            <label for="maintenance-vehicule">Véhicule *</label>
+                            <select id="maintenance-vehicule" name="vehicule_id" required>
+                                <option value="">Sélectionner un véhicule</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="maintenance-type">Type de maintenance *</label>
+                            <select id="maintenance-type" name="type_maintenance" required>
+                                <option value="">Sélectionner un type</option>
+                                <option value="revision">Révision</option>
+                                <option value="reparation">Réparation</option>
+                                <option value="controle">Contrôle</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="maintenance-description">Description *</label>
+                            <textarea id="maintenance-description" name="description" placeholder="Description détaillée de la maintenance" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="maintenance-cout">Coût (FCFA)</label>
+                            <input type="number" id="maintenance-cout" name="cout" placeholder="Ex: 150000">
+                        </div>
+                        <div class="form-group">
+                            <label for="maintenance-date-debut">Date de début *</label>
+                            <input type="date" id="maintenance-date-debut" name="date_debut" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="maintenance-date-fin">Date de fin</label>
+                            <input type="date" id="maintenance-date-fin" name="date_fin">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm('maintenance-form')">Annuler</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="plus"></i>
+                                Ajouter Maintenance
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // API base URL
+        const API = window.location.origin;
+
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            event.target.classList.add('active');
+        }
+
+        // Show message
+        function showMessage(type, text) {
+            const messages = document.getElementById('messages');
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}"></i> ${text}`;
+            messages.appendChild(message);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                message.remove();
+            }, 5000);
+        }
+
+        // Reset form
+        function resetForm(formId) {
+            document.getElementById(formId).reset();
+        }
+
+        // Load select options
+        async function loadSelectOptions() {
+            try {
+                // Load lines
+                const linesRes = await fetch(`${API}/api/lines`);
+                const lines = await linesRes.json();
+                const lineSelects = ['trip-ligne'];
+                lineSelects.forEach(id => {
+                    const select = document.getElementById(id);
+                    lines.forEach(line => {
+                        const option = document.createElement('option');
+                        option.value = line.id;
+                        option.textContent = `${line.code} - ${line.nom || line.origine + ' → ' + line.destination}`;
+                        select.appendChild(option);
+                    });
+                });
+
+                // Load drivers
+                const driversRes = await fetch(`${API}/api/drivers`);
+                const drivers = await driversRes.json();
+                const driverSelects = ['trip-chauffeur'];
+                driverSelects.forEach(id => {
+                    const select = document.getElementById(id);
+                    drivers.forEach(driver => {
+                        const option = document.createElement('option');
+                        option.value = driver.id;
+                        option.textContent = `${driver.prenom} ${driver.nom}`;
+                        select.appendChild(option);
+                    });
+                });
+
+                // Load vehicles
+                const vehiclesRes = await fetch(`${API}/api/vehicles`);
+                const vehicles = await vehiclesRes.json();
+                const vehicleSelects = ['trip-vehicule', 'maintenance-vehicule'];
+                vehicleSelects.forEach(id => {
+                    const select = document.getElementById(id);
+                    vehicles.forEach(vehicle => {
+                        const option = document.createElement('option');
+                        option.value = vehicle.id;
+                        option.textContent = `${vehicle.immatriculation} (${vehicle.type})`;
+                        select.appendChild(option);
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error loading select options:', error);
+            }
+        }
+
+        // Form submissions
+        document.getElementById('vehicle-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div> Ajout...';
+
+            try {
+                const response = await fetch(`${API}/api/vehicles`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showMessage('success', 'Véhicule ajouté avec succès !');
+                    resetForm('vehicle-form');
+                } else {
+                    const error = await response.json();
+                    showMessage('error', error.detail || 'Erreur lors de l\'ajout du véhicule');
+                }
+            } catch (error) {
+                showMessage('error', 'Erreur réseau. Veuillez réessayer.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                lucide.createIcons();
+            }
+        });
+
+        document.getElementById('driver-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div> Ajout...';
+
+            try {
+                const response = await fetch(`${API}/api/drivers`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showMessage('success', 'Chauffeur ajouté avec succès !');
+                    resetForm('driver-form');
+                } else {
+                    const error = await response.json();
+                    showMessage('error', error.detail || 'Erreur lors de l\'ajout du chauffeur');
+                }
+            } catch (error) {
+                showMessage('error', 'Erreur réseau. Veuillez réessayer.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                lucide.createIcons();
+            }
+        });
+
+        document.getElementById('line-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div> Ajout...';
+
+            try {
+                const response = await fetch(`${API}/api/lines`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showMessage('success', 'Ligne ajoutée avec succès !');
+                    resetForm('line-form');
+                } else {
+                    const error = await response.json();
+                    showMessage('error', error.detail || 'Erreur lors de l\'ajout de la ligne');
+                }
+            } catch (error) {
+                showMessage('error', 'Erreur réseau. Veuillez réessayer.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                lucide.createIcons();
+            }
+        });
+
+        document.getElementById('trip-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div> Ajout...';
+
+            try {
+                const response = await fetch(`${API}/api/trips`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showMessage('success', 'Trajet ajouté avec succès !');
+                    resetForm('trip-form');
+                } else {
+                    const error = await response.json();
+                    showMessage('error', error.detail || 'Erreur lors de l\'ajout du trajet');
+                }
+            } catch (error) {
+                showMessage('error', 'Erreur réseau. Veuillez réessayer.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                lucide.createIcons();
+            }
+        });
+
+        document.getElementById('maintenance-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div> Ajout...';
+
+            try {
+                const response = await fetch(`${API}/api/maintenance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showMessage('success', 'Maintenance ajoutée avec succès !');
+                    resetForm('maintenance-form');
+                } else {
+                    const error = await response.json();
+                    showMessage('error', error.detail || 'Erreur lors de l\'ajout de la maintenance');
+                }
+            } catch (error) {
+                showMessage('error', 'Erreur réseau. Veuillez réessayer.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                lucide.createIcons();
+            }
+        });
+
+        // Initialize
+        document.addEventListener("DOMContentLoaded", () => {
+            loadSelectOptions();
+        });
+    </script>
+</body>
+</html>

@@ -354,10 +354,10 @@
     <div class="sidebar">
         <div class="logo"><i data-lucide="bus" style="color:white; width: 24px;"></i></div>
         <div class="nav-items">
-            <div class="nav-item active" title="Dashboard"><i data-lucide="layout-dashboard"></i></div>
-            <div class="nav-item" title="Cartographie"><i data-lucide="map"></i></div>
-            <div class="nav-item" title="Chauffeurs"><i data-lucide="users"></i></div>
-            <div class="nav-item" title="Flotte"><i data-lucide="truck"></i></div>
+            <div class="nav-item active" title="Dashboard" onclick="window.location.href='/dashboard'"><i data-lucide="layout-dashboard"></i></div>
+            <div class="nav-item" title="Stations" onclick="window.location.href='/stations'"><i data-lucide="map-pin"></i></div>
+            <div class="nav-item" title="Maintenance" onclick="window.location.href='/maintenance'"><i data-lucide="wrench"></i></div>
+            <div class="nav-item" title="Ajouter Données" onclick="window.location.href='/add-data'"><i data-lucide="plus-circle"></i></div>
         </div>
         <div class="nav-item nav-bottom" title="Paramètres"><i data-lucide="settings"></i></div>
     </div>
@@ -461,7 +461,7 @@
     lucide.createIcons();
     
     // Configuration
-    const API = 'https://transpobot-production-cd52.up.railway.app';
+    const API = window.location.origin;
 
     // Helper functions
     const formatDate = (dateString) => {
