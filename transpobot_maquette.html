@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TranspoBot — Gestion de Transport IA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0B0F1A;--bg2:#111827;--bg3:#1a2235;--bg4:#0d1526;
+  --blue:#2563EB;--blue2:#3B82F6;--accent:#38BDF8;
+  --green:#22C55E;--orange:#F59E0B;--red:#EF4444;
+  --text:#F1F5F9;--muted:#64748B;--border:#1E293B;--card:#141D2E;
+  --radius:14px;
+}
+.light{
+  --bg:#F0F4FA;--bg2:#FFFFFF;--bg3:#E8EEF8;--bg4:#F8FAFF;
+  --blue:#2563EB;--blue2:#3B82F6;--accent:#0284C7;
+  --green:#16A34A;--orange:#D97706;--red:#DC2626;
+  --text:#0F172A;--muted:#64748B;--border:#CBD5E1;--card:#FFFFFF;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;}
+
+/* ===== LAYOUT ===== */
+.app{display:grid;grid-template-columns:64px 1fr;grid-template-rows:58px 1fr;height:100vh;overflow:hidden;}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  grid-row:1/3;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;
+  transition:background .3s;z-index:10;
+}
+.logo-icon{width:40px;height:40px;background:var(--blue);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;flex-shrink:0;}
+.nav-btn{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:var(--muted);border:none;background:none;transition:all .2s;position:relative;}
+.nav-btn:hover{background:var(--bg3);color:var(--blue2);}
+.nav-btn.active{background:var(--bg3);color:var(--blue2);box-shadow:0 0 0 1.5px var(--blue2)40;}
+.nav-btn .tooltip{position:absolute;left:52px;background:#1e293b;color:#f1f5f9;font-size:11px;padding:4px 10px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;}
+.nav-btn:hover .tooltip{opacity:1;}
+.sidebar-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.theme-toggle{width:40px;height:40px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.theme-toggle:hover{background:var(--blue);border-color:var(--blue);color:white;}
+.user-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#38BDF8);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:white;}
+
+/* ===== TOPBAR ===== */
+.topbar{
+  grid-column:2;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 22px;gap:16px;transition:background .3s;
+}
+.app-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px;}
+.app-sub{font-size:11px;color:var(--muted);margin-left:2px;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.live-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);background:var(--bg3);padding:5px 12px;border-radius:999px;border:1px solid var(--green)40;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.tab-row{display:flex;gap:4px;}
+.tab-btn{padding:5px 15px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--muted);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;}
+.tab-btn.active{background:var(--blue);color:white;border-color:var(--blue);}
+.icon-btn{width:36px;height:36px;border-radius:9px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;position:relative;}
+.badge{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg2);}
+
+/* ===== MAIN CONTENT ===== */
+.main{grid-column:2;display:grid;grid-template-columns:1fr 420px;overflow:hidden;height:100%;}
+.left{overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:18px;}
+.right{background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:background .3s;}
+
+/* ===== SECTION LABEL ===== */
+.sec-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);font-weight:600;margin-bottom:12px;}
+
+/* ===== STAT CARDS ===== */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:border-color .2s,transform .15s;}
+.scard:hover{border-color:var(--blue2)50;transform:translateY(-1px);}
+.scard.clickable:hover{border-color:var(--orange);}
+.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.sc-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.sc-ico.b{background:#1e3a8a25;} .sc-ico.g{background:#14532d25;} .sc-ico.o{background:#78350f25;} .sc-ico.r{background:#7f1d1d25;}
+.trend{font-size:10px;padding:3px 8px;border-radius:999px;font-weight:500;}
+.trend.up{background:#14532d40;color:var(--green);} .trend.dn{background:#7f1d1d40;color:var(--red);}
+.sc-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1;}
+.sc-lbl{font-size:11px;color:var(--muted);margin-top:3px;}
+.sc-bar{height:3px;background:var(--border);border-radius:999px;margin-top:12px;overflow:hidden;}
+.sc-bar div{height:100%;border-radius:999px;}
+
+/* ===== TABLE CARD ===== */
+.tcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;overflow:hidden;}
+.tcard-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.search{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--text);width:190px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s;}
+.search:focus{border-color:var(--blue2);}
+table{width:100%;border-collapse:collapse;}
+th{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);}
+td{font-size:12px;padding:9px 10px;border-bottom:1px solid var(--border)15;color:var(--text);vertical-align:middle;}
+tbody tr:last-child td{border:none;}
+tbody tr:hover td{background:var(--bg3)50;}
+.sbadge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 9px;border-radius:999px;font-weight:500;}
+.sbadge.done{background:#14532d40;color:#4ade80;} .sbadge.go{background:#1e3a8a40;color:#60a5fa;} .sbadge.wait{background:#78350f40;color:#fbbf24;}
+.dav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;flex-shrink:0;}
+.dcell{display:flex;align-items:center;gap:7px;}
+
+/* ===== MAINTENANCE PANEL ===== */
+.maint-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.msum{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;}
+.msum-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;}
+.msum-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+.maint-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+.mcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;transition:border-color .2s;}
+.mcard:hover{border-color:var(--orange)50;}
+.mcard-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.vico{width:42px;height:42px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.vname{font-weight:600;font-size:13px;line-height:1.3;}
+.vplate{font-size:10px;color:var(--muted);background:var(--bg3);border:1px solid var(--border);padding:2px 7px;border-radius:5px;margin-top:3px;display:inline-block;letter-spacing:.5px;}
+.msev{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:999px;font-weight:500;margin-left:auto;flex-shrink:0;}
+.msev.high{background:#7f1d1d40;color:var(--red);border:1px solid var(--red)30;}
+.msev.med{background:#78350f40;color:var(--orange);border:1px solid var(--orange)30;}
+.msev.low{background:#14532d40;color:var(--green);border:1px solid var(--green)30;}
+.mrow{display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--border);}
+.mk{color:var(--muted);} .mv{font-weight:500;}
+.mv.warn{color:var(--orange);} .mv.ok{color:var(--green);} .mv.crit{color:var(--red);}
+.mbar-wrap{margin-top:10px;}
+.mbar-info{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px;}
+.mbar{height:5px;background:var(--border);border-radius:999px;overflow:hidden;}
+.mbar-fill{height:100%;border-radius:999px;background:var(--orange);}
+
+/* ===== CHAT RIGHT PANEL ===== */
+.chat-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.bot-av{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#2563EB,#38BDF8);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.bot-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.bot-st{font-size:10px;color:var(--green);display:flex;align-items:center;gap:4px;margin-top:2px;}
+
+/* SUGGESTED */
+.suggested{padding:12px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sug-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;margin-bottom:8px;}
+.sug-list{display:flex;flex-direction:column;gap:5px;}
+.sug-btn{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:none;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left;width:100%;transition:all .2s;}
+.sug-btn:hover{border-color:var(--blue2);background:var(--bg3);}
+.sug-ico{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+.sug-arr{margin-left:auto;color:var(--muted);font-size:12px;}
+
+/* MESSAGES */
+.chat-msgs{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px;}
+.msg{display:flex;flex-direction:column;}
+.msg.user{align-items:flex-end;}
+.bubble{border-radius:14px;padding:11px 14px;font-size:13px;line-height:1.65;max-width:90%;}
+.msg.bot .bubble{background:var(--bg3);border:1px solid var(--border);border-radius:0 14px 14px 14px;color:var(--text);}
+.msg.user .bubble{background:var(--blue);color:white;border-radius:14px 14px 0 14px;}
+.msg-time{font-size:10px;color:var(--muted);padding:3px 4px;}
+.data-box{background:var(--bg4);border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-top:8px;}
+.data-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border)20;}
+.data-row:last-child{border:none;}
+.dkey{color:var(--muted);} .dval{font-weight:500;}
+.dval.ok{color:var(--green);} .dval.warn{color:var(--orange);} .dval.bad{color:var(--red);}
+.typing-wrap{display:flex;gap:4px;padding:2px;}
+.typing-wrap span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bounce .9s infinite;}
+.typing-wrap span:nth-child(2){animation-delay:.18s;}
+.typing-wrap span:nth-child(3){animation-delay:.36s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* INPUT */
+.chat-input-zone{padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0;}
+.input-outer{display:flex;align-items:flex-end;gap:8px;background:var(--bg3);border:1.5px solid var(--border);border-radius:14px;padding:10px 14px;transition:border-color .2s;}
+.input-outer:focus-within{border-color:var(--blue2);}
+.cinput{flex:1;background:none;border:none;outline:none;font-size:13px;color:var(--text);resize:none;font-family:'DM Sans',sans-serif;max-height:100px;line-height:1.55;}
+.cinput::placeholder{color:var(--muted);}
+.send-btn{width:34px;height:34px;border-radius:9px;background:var(--blue);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:white;flex-shrink:0;transition:background .2s;}
+.send-btn:hover{background:var(--blue2);}
+.input-hint{font-size:10px;color:var(--muted);text-align:center;margin-top:7px;}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="logo-icon">🚌</div>
+    <button class="nav-btn active" id="nb-dash" onclick="switchTab('dash')">📊<span class="tooltip">Dashboard</span></button>
+    <button class="nav-btn" id="nb-maint" onclick="switchTab('maint')">🔧<span class="tooltip">Maintenance</span></button>
+    <button class="nav-btn">🗺️<span class="tooltip">Trajets</span></button>
+    <button class="nav-btn">👤<span class="tooltip">Chauffeurs</span></button>
+    <button class="nav-btn">⚠️<span class="tooltip">Incidents</span></button>
+    <button class="nav-btn">📋<span class="tooltip">Rapports</span></button>
+    <div class="sidebar-bottom">
+      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="Mode jour/nuit">🌙</button>
+      <div class="user-av">KD</div>
+    </div>
+  </nav>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div>
+      <span class="app-name">TranspoBot</span>
+      <span class="app-sub"> — Assistant IA · Gestion de Transport</span>
+    </div>
+    <div class="topbar-right">
+      <div class="live-pill"><div class="dot"></div>Système opérationnel</div>
+      <div class="tab-row">
+        <button class="tab-btn active" id="tb-dash" onclick="switchTab('dash')">Dashboard</button>
+        <button class="tab-btn" id="tb-maint" onclick="switchTab('maint')">Maintenance (6)</button>
+      </div>
+      <div class="icon-btn">🔔<div class="badge"></div></div>
+      <div class="icon-btn">📅</div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- LEFT -->
+    <div class="left">
+
+      <!-- ===== DASHBOARD ===== -->
+      <section id="tab-dash">
+        <div class="sec-lbl">Vue d'ensemble — 2 Avril 2026</div>
+        <div class="stats">
+          <div class="scard">
+            <div class="sc-top"><div class="sc-ico b">🚌</div><span class="trend up">↑ +12%</span></div>
+            <div class="sc-val" id="stat-total">--</div><div class="sc-lbl">Trajets terminés</div>
+            <div class="sc-bar"><div id="bar-total" style="width:78%;background:#3B82F6"></div></div>
+          </div>
+          <div class="scard">
+            <div class="sc-top"><div class="sc-ico g">✅</div><span class="trend up">↑ +5%</span></div>
+            <div class="sc-val" id="stat-actifs">--</div><div class="sc-lbl">Véhicules actifs</div>
+            <div class="sc-bar"><div id="bar-actifs" style="width:92%;background:#22C55E"></div></div>
+          </div>
+          <div class="scard clickable" onclick="switchTab('maint')" title="Voir maintenance">
+            <div class="sc-top"><div class="sc-ico o">🔧</div><span class="trend dn">↓ -2</span></div>
+            <div class="sc-val" id="stat-maint">--</div><div class="sc-lbl">En maintenance ↗</div>
+            <div class="sc-bar"><div id="bar-maint" style="width:34%;background:#F59E0B"></div></div>
+          </div>
+          <div class="scard">
+            <div class="sc-top"><div class="sc-ico r">🚨</div><span class="trend dn">↓ -1</span></div>
+            <div class="sc-val" id="stat-incidents">--</div><div class="sc-lbl">Incidents ouverts</div>
+            <div class="sc-bar"><div id="bar-incidents" style="width:12%;background:#EF4444"></div></div>
+          </div>
+        </div>
+
+        <div style="margin-top:6px;" class="tcard">
+          <div class="tcard-hd">
+            <span style="font-size:13px;font-weight:600;">Trajets récents</span>
+            <input class="search" placeholder="🔍  Rechercher un trajet..." />
+          </div>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Ligne</th><th>Chauffeur</th><th>Départ</th><th>Arrivée</th><th>Statut</th><th>Distance</th></tr>
+            </thead>
+            <tbody id="trajets-body">
+              <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Chargement...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== MAINTENANCE ===== -->
+      <section id="tab-maint" style="display:none;">
+        <div class="sec-lbl">Parc en maintenance — 2 Avril 2026</div>
+        <div class="maint-summary">
+          <div class="msum"><div class="msum-val" style="color:var(--red)">2</div><div class="msum-lbl">Critiques</div></div>
+          <div class="msum"><div class="msum-val" style="color:var(--orange)">2</div><div class="msum-lbl">Modérés</div></div>
+          <div class="msum"><div class="msum-val" style="color:var(--green)">2</div><div class="msum-lbl">Mineurs</div></div>
+        </div>
+        <div class="maint-grid">
+
+          <div class="mcard">
+            <div class="mcard-top">
+              <div class="vico">🚌</div>
+              <div><div class="vname">Bus Dakar Express 04</div><span class="vplate">DK-4821-B</span></div>
+              <span class="msev high">● Critique</span>
+            </div>
+            <div class="mrow"><span class="mk">Panne</span><span class="mv">Moteur — Surchauffe</span></div>
+            <div class="mrow"><span class="mk">Atelier</span><span class="mv">Mécanique Dakar Sud</span></div>
+            <div class="mrow"><span class="mk">Entrée</span><span class="mv">28 mars 2026</span></div>
+            <div class="mrow"><span class="mk">Sortie prévue</span><span class="mv warn">5 avril 2026</span></div>
+            <div class="mrow"><span class="mk">Coût estimé</span><span class="mv">580 000 FCFA</span></div>
+            <div class="mbar-wrap">
+              <div class="mbar-info"><span>Avancement réparation</span><span>72%</span></div>
+              <div class="mbar"><div class="mbar-fill" style="width:72%"></div></div>
+            </div>
+          </div>
+
+          <div class="mcard">
+            <div class="mcard-top">
+              <div class="vico">🚍</div>
+              <div><div class="vname">Minibus Thiès 11</div><span class="vplate">TH-2203-A</span></div>
+              <span class="msev med">● Modéré</span>
+            </div>
+            <div class="mrow"><span class="mk">Panne</span><span class="mv">Freins — Remplacement</span></div>
+            <div class="mrow"><span class="mk">Atelier</span><span class="mv">Auto Thiès Centre</span></div>
+            <div class="mrow"><span class="mk">Entrée</span><span class="mv">30 mars 2026</span></div>
+            <div class="mrow"><span class="mk">Sortie prévue</span><span class="mv ok">3 avril 2026</span></div>
+            <div class="mrow"><span class="mk">Coût estimé</span><span class="mv">210 000 FCFA</span></div>
+            <div class="mbar-wrap">
+              <div class="mbar-info"><span>Avancement réparation</span><span>90%</span></div>
+              <div class="mbar"><div class="mbar-fill" style="width:90%;background:var(--green)"></div></div>
+            </div>
+          </div>
+
+          <div class="mcard">
+            <div class="mcard-top">
+              <div class="vico">🚌</div>
+              <div><div class="vname">Bus Mbour Express 07</div><span class="vplate">MB-0098-C</span></div>
+              <span class="msev med">● Modéré</span>
+            </div>
+            <div class="mrow"><span class="mk">Panne</span><span class="mv">Boîte de vitesses</span></div>
+            <div class="mrow"><span class="mk">Atelier</span><span class="mv">Garage Mbour Est</span></div>
+            <div class="mrow"><span class="mk">Entrée</span><span class="mv">1 avril 2026</span></div>
+            <div class="mrow"><span class="mk">Sortie prévue</span><span class="mv warn">8 avril 2026</span></div>
+            <div class="mrow"><span class="mk">Coût estimé</span><span class="mv">390 000 FCFA</span></div>
+            <div class="mbar-wrap">
+              <div class="mbar-info"><span>Avancement réparation</span><span>25%</span></div>
+              <div class="mbar"><div class="mbar-fill" style="width:25%"></div></div>
+            </div>
+          </div>
+
+          <div class="mcard">
+            <div class="mcard-top">
+              <div class="vico">🚐</div>
+              <div><div class="vname">Navette Rufisque 03</div><span class="vplate">RF-5510-D</span></div>
+              <span class="msev low">● Mineur</span>
+            </div>
+            <div class="mrow"><span class="mk">Panne</span><span class="mv">Climatisation HS</span></div>
+            <div class="mrow"><span class="mk">Atelier</span><span class="mv">Electro-Auto Dakar</span></div>
+            <div class="mrow"><span class="mk">Entrée</span><span class="mv">2 avril 2026</span></div>
+            <div class="mrow"><span class="mk">Sortie prévue</span><span class="mv ok">4 avril 2026</span></div>
+            <div class="mrow"><span class="mk">Coût estimé</span><span class="mv">95 000 FCFA</span></div>
+            <div class="mbar-wrap">
+              <div class="mbar-info"><span>Avancement réparation</span><span>50%</span></div>
+              <div class="mbar"><div class="mbar-fill" style="width:50%"></div></div>
+            </div>
+          </div>
+
+          <div class="mcard">
+            <div class="mcard-top">
+              <div class="vico">🚌</div>
+              <div><div class="vname">Bus Kaolack 15</div><span class="vplate">KL-7732-A</span></div>
+              <span class="msev high">● Critique</span>
+            </div>
+            <div class="mrow"><span class="mk">Panne</span><span class="mv">Accident — carrosserie</span></div>
+            <div class="mrow"><span class="mk">Atelier</span><span class="mv">Carrosserie Kaolack</span></div>
+            <div class="mrow"><span class="mk">Entrée</span><span class="mv">25 mars 2026</span></div>
+            <div class="mrow"><span class="mk">Sortie prévue</span><span class="mv crit">15 avril 2026</span></div>
+            <div class="mrow"><span class="mk">Coût estimé</span><span class="mv">1 200 000 FCFA</span></div>
+            <div class="mbar-wrap">
+              <div class="mbar-info"><span>Avancement réparation</span><span>40%</span></div>
+              <div class="mbar"><div class="mbar-fill" style="width:40%"></div></div>
+            </div>
+          </div>
+
+          <div class="mcard">
+            <div class="mcard-top">
+              <div class="vico">🚍</div>
+              <div><div class="vname">Minibus Dakar 22</div><span class="vplate">DK-1144-F</span></div>
+              <span class="msev low">● Mineur</span>
+            </div>
+            <div class="mrow"><span class="mk">Panne</span><span class="mv">Révision périodique</span></div>
+            <div class="mrow"><span class="mk">Atelier</span><span class="mv">Centre Auto Dakar N.</span></div>
+            <div class="mrow"><span class="mk">Entrée</span><span class="mv">2 avril 2026</span></div>
+            <div class="mrow"><span class="mk">Sortie prévue</span><span class="mv ok">3 avril 2026</span></div>
+            <div class="mrow"><span class="mk">Coût estimé</span><span class="mv">55 000 FCFA</span></div>
+            <div class="mbar-wrap">
+              <div class="mbar-info"><span>Avancement réparation</span><span>85%</span></div>
+              <div class="mbar"><div class="mbar-fill" style="width:85%;background:var(--green)"></div></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ===== RIGHT — CHATBOT ===== -->
+    <div class="right">
+      <div class="chat-header">
+        <div class="bot-av">🤖</div>
+        <div>
+          <div class="bot-name">TranspoBot IA</div>
+          <div class="bot-st"><div class="dot"></div>En ligne · prêt à répondre</div>
+        </div>
+      </div>
+
+      <div class="suggested">
+        <div class="sug-lbl">Questions fréquentes</div>
+        <div class="sug-list">
+          <button class="sug-btn" onclick="askQ('Recette totale mars 2026 ?')"><span class="sug-ico">💰</span>Recette totale mars 2026 ?<span class="sug-arr">↗</span></button>
+          <button class="sug-btn" onclick="askQ('Quel est le meilleur chauffeur ce mois ?')"><span class="sug-ico">🏆</span>Meilleur chauffeur ce mois ?<span class="sug-arr">↗</span></button>
+          <button class="sug-btn" onclick="askQ('Combien de trajets cette semaine ?')"><span class="sug-ico">📍</span>Combien de trajets cette semaine ?<span class="sug-arr">↗</span></button>
+          <button class="sug-btn" onclick="askQ('Véhicules toujours en maintenance ?')"><span class="sug-ico">🔧</span>Véhicules en maintenance ?<span class="sug-arr">↗</span></button>
+          <button class="sug-btn" onclick="askQ('Bilan de la journée ?')"><span class="sug-ico">📊</span>Bilan de la journée ?<span class="sug-arr">↗</span></button>
+        </div>
+      </div>
+
+      <div class="chat-msgs" id="chatMsgs">
+        <div class="msg bot">
+          <div class="bubble">👋 Bonjour ! Je suis <strong>TranspoBot</strong>, votre assistant intelligent.<br>Posez-moi n'importe quelle question sur votre flotte, vos trajets, vos chauffeurs ou vos recettes !</div>
+          <div class="msg-time">09:00</div>
+        </div>
+      </div>
+
+      <div class="chat-input-zone">
+        <div class="input-outer">
+          <textarea class="cinput" id="chatInput" rows="1" placeholder="Posez votre question à TranspoBot..." onkeydown="handleKey(event)"></textarea>
+          <button class="send-btn" onclick="sendMsg()">➤</button>
+        </div>
+        <div class="input-hint">Entrée pour envoyer · Maj+Entrée pour sauter une ligne · TranspoBot v2.1</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+let isLight = false;
+const API = "http://localhost:8000/"; // Simulated API endpoint
+function toggleTheme(){
+  isLight = !isLight;
+  document.getElementById('app').classList.toggle('light', isLight);
+  document.getElementById('themeBtn').textContent = isLight ? '🌙' : '☀️';
+}
+
+function switchTab(tab){
+  document.getElementById('tab-dash').style.display = tab==='dash' ? '' : 'none';
+  document.getElementById('tab-maint').style.display = tab==='maint' ? '' : 'none';
+  ['dash','maint'].forEach(t=>{
+    document.getElementById('tb-'+t).classList.toggle('active', t===tab);
+    const nb = document.getElementById('nb-'+t);
+    if(nb) nb.classList.toggle('active', t===tab);
+  });
+}
+
+function handleKey(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMsg(); }
+}
+
+const REPLIES = {
+  recette:{label:'Recette — Mars 2026',rows:[
+    ['Recette brute','47 380 000 FCFA','ok'],
+    ['Carburant','- 8 200 000 FCFA','warn'],
+    ['Entretien / réparations','- 2 530 000 FCFA','warn'],
+    ['Recette nette','36 650 000 FCFA','ok'],
+    ['vs Février 2026','▲ +8,4%','ok']
+  ]},
+  chauffeur:{label:'Classement chauffeurs — Mars 2026',rows:[
+    ['1er · M. Badji','94 trajets · 98% ponctualité','ok'],
+    ['2e · F. Diallo','88 trajets · 96% ponctualité',''],
+    ['3e · O. Diop','82 trajets · 95% ponctualité',''],
+    ['Incidents M. Badji','0 signalé','ok'],
+    ['Prime attribuée','85 000 FCFA','ok']
+  ]},
+  trajets:{label:'Trajets — Semaine du 30 mars',rows:[
+    ['Total trajets','1 248',''],
+    ['Terminés','1 201 (96,2%)','ok'],
+    ['Annulés','18 (1,4%)','warn'],
+    ['Incidents','3 signalés','warn'],
+    ['Km parcourus','68 420 km','']
+  ]},
+  maintenance:{label:'Maintenance — Aujourd\'hui',rows:[
+    ['Véhicules en panne','6 au total','warn'],
+    ['Critiques','2 (Bus 04 · Kaolack 15)','bad'],
+    ['Sortie imminente','Thiès 11 (demain)','ok'],
+    ['Coût total estimé','2 530 000 FCFA','warn'],
+    ['Atelier le + actif','Mécanique Dakar Sud','']
+  ]},
+  bilan:{label:'Bilan journée — 2 Avril 2026',rows:[
+    ['Trajets terminés','247','ok'],
+    ['Véhicules actifs','38 / 44','ok'],
+    ['Km parcourus','12 450 km',''],
+    ['Incidents ouverts','3','warn'],
+    ['Recette estimée','2 340 000 FCFA','ok']
+  ]},
+  default:{label:'TranspoBot — Analyse',rows:[
+    ['Statut flotte','Opérationnel','ok'],
+    ['Données','Mises à jour en temps réel',''],
+    ['Suggestion','Essayez : "Recette mars 2026"',''],
+    ['Version','TranspoBot v2.1','']
+  ]}
+};
+
+function getReply(q){
+  q = q.toLowerCase();
+  if(q.includes('recette')||q.includes('mars')||q.includes('revenu')||q.includes('argent')) return REPLIES.recette;
+  if(q.includes('chauffeur')||q.includes('meilleur')||q.includes('classement')) return REPLIES.chauffeur;
+  if(q.includes('trajet')||q.includes('semaine')||q.includes('voyage')||q.includes('ligne')) return REPLIES.trajets;
+  if(q.includes('maintenance')||q.includes('panne')||q.includes('réparation')||q.includes('véhicule')) return REPLIES.maintenance;
+  if(q.includes('bilan')||q.includes('journée')||q.includes('aujourd')) return REPLIES.bilan;
+  return REPLIES.default;
+}
+
+function now(){ return new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
+
+function addMsg(role, text, data){
+  const box = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className = 'msg '+role;
+  let h = `<div class="bubble">${text}</div>`;
+  if(data){
+    h += `<div class="data-box">${data.rows.map(r=>`<div class="data-row"><span class="dkey">${r[0]}</span><span class="dval ${r[2]||''}">${r[1]}</span></div>`).join('')}</div>`;
+  }
+  h += `<div class="msg-time">${now()}</div>`;
+  d.innerHTML = h;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
+
+function addTyping(){
+  const box = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className = 'msg bot'; d.id = 'typingBubble';
+  d.innerHTML = `<div class="bubble" style="padding:14px 16px"><div class="typing-wrap"><span></span><span></span><span></span></div></div>`;
+  box.appendChild(d); box.scrollTop = box.scrollHeight;
+}
+
+async function fetchStats(){
+  try {
+    const res = await fetch(`${API}api/stats`);
+    if(!res.ok) throw new Error('Stat API failed');
+    const data = await res.json();
+    document.getElementById('stat-total').textContent = data.total_trajets ?? '0';
+    document.getElementById('stat-actifs').textContent = data.vehicules_actifs ?? '0';
+    document.getElementById('stat-maint').textContent = data.trajets_en_cours ?? '0';
+    document.getElementById('stat-incidents').textContent = data.incidents_ouverts ?? '0';
+  } catch (e) {
+    console.error(e);
+    document.getElementById('stat-total').textContent = 'N/A';
+    document.getElementById('stat-actifs').textContent = 'N/A';
+    document.getElementById('stat-maint').textContent = 'N/A';
+    document.getElementById('stat-incidents').textContent = 'N/A';
+  }
+}
+
+async function fetchTrajets(){
+  const tbody = document.getElementById('trajets-body');
+  try {
+    const res = await fetch(`${API}api/trajets/recent`);
+    if(!res.ok) throw new Error('Trajets API failed');
+    const data = await res.json();
+    if(!Array.isArray(data) || data.length === 0){
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Aucun trajet trouvé.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.slice(0,8).map(t=>{
+      const statut = t.statut ?? 'inconnu';
+      const badge = statut === 'en_cours' ? 'go' : statut === 'termine' ? 'done' : 'wait';
+      const statusLabel = statut.replace('_', ' ');
+      const depart = t.date_heure_depart ? new Date(t.date_heure_depart).toLocaleString('fr-FR') : '--';
+      const arrivee = t.date_heure_arrivee ? new Date(t.date_heure_arrivee).toLocaleString('fr-FR') : '—';
+      return `
+        <tr>
+          <td style="color:var(--muted);font-size:11px;">#TR-${t.id.toString().padStart(4,'0')}</td>
+          <td>${t.ligne || t.ligne_id || '—'}</td>
+          <td>${t.chauffeur_nom || 'Inconnu'}</td>
+          <td>${depart}</td>
+          <td>${arrivee}</td>
+          <td><span class="sbadge ${badge}">● ${statusLabel}</span></td>
+          <td style="color:var(--muted)">${t.distance_km ? t.distance_km + ' km' : '—'}</td>
+        </tr>`;
+    }).join('');
+  } catch(e){
+    console.error(e);
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Erreur chargement trajets.</td></tr>`;
+  }
+}
+
+async function sendMsg(){
+  const inp = document.getElementById('chatInput');
+  const q = inp.value.trim();
+  if(!q) return;
+  addMsg('user', q);
+  inp.value = '';
+  inp.style.height = '';
+  addTyping();
+
+  try {
+    const response = await fetch(`${API}api/chat`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({question:q})
+    });
+
+    document.getElementById('typingBubble')?.remove();
+
+    if(!response.ok){
+      addMsg('bot', 'Erreur API chat : '+response.status);
+      return;
+    }
+
+    const result = await response.json();
+    let botMsg = result.answer || 'Aucune réponse trouvée.';
+    if(result.sql){ botMsg += `<br><small style="color:var(--muted);">SQL: ${result.sql}</small>`; }
+
+    addMsg('bot', botMsg);
+
+    if(result.data && Array.isArray(result.data) && result.data.length){
+      const tableHtml = `<div class="data-box">${result.data.slice(0,5).map(row=>
+        `<div class="data-row">${Object.entries(row).map(([k,v])=>`<div style="width:50%;font-size:10px;"><span class="dkey">${k}</span>: <span class="dval">${v}</span></div>`).join('')}</div>`
+      ).join('')}</div>`;
+      addMsg('bot', 'Données SQL :', {rows: []});
+      const box = document.getElementById('chatMsgs');
+      const d = document.createElement('div');
+      d.className='msg bot';
+      d.innerHTML=`<div class="bubble">${tableHtml}</div><div class="msg-time">${now()}</div>`;
+      box.appendChild(d); box.scrollTop=box.scrollHeight;
+    }
+
+    // maybe refresh dashboards
+    fetchStats();
+    fetchTrajets();
+
+  } catch (e){
+    console.error(e);
+    document.getElementById('typingBubble')?.remove();
+    addMsg('bot', 'Impossible de joindre l’API chat.');
+  }
+}
+
+function askQ(q){
+  document.getElementById('chatInput').value = q;
+  sendMsg();
+}
+
+// Auto-resize textarea
+document.getElementById('chatInput').addEventListener('input', function(){
+  this.style.height = '';
+  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
+
+// initialize
+fetchStats();
+fetchTrajets();
+</script>
+</body>
+</html>
