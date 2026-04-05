@@ -1,690 +1,463 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TranspoBot — Assistant IA Premium</title>
-    <!-- Modern Typography: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons for clean, modern SVG icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        :root {
-            --bg-color: #0f172a; /* Slate 900 */
-            --bg-gradient: linear-gradient(135deg, #020617 0%, #0f172a 100%);
-            
-            /* Glassmorphism settings */
-            --glass-bg: rgba(30, 41, 59, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            
-            /* Accents */
-            --accent-primary: #3b82f6; /* Blue 500 */
-            --accent-glow: rgba(59, 130, 246, 0.4);
-            --accent-secondary: #8b5cf6; /* Violet 500 */
-            
-            /* Text */
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            
-            /* Status Colors */
-            --status-green: #10b981;
-            --status-green-bg: rgba(16, 185, 129, 0.15);
-            --status-orange: #f59e0b;
-            --status-orange-bg: rgba(245, 158, 11, 0.15);
-            --status-red: #ef4444;
-            --status-red-bg: rgba(239, 68, 68, 0.15);
-        }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TranspoBot — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0B0F1A;--bg2:#111827;--bg3:#1a2235;--bg4:#0d1526;
+  --blue:#2563EB;--blue2:#3B82F6;--accent:#38BDF8;
+  --green:#22C55E;--orange:#F59E0B;--red:#EF4444;
+  --text:#F1F5F9;--muted:#64748B;--border:#1E293B;--card:#141D2E;
+  --radius:14px;
+}
+.light{
+  --bg:#F0F4FA;--bg2:#FFFFFF;--bg3:#E8EEF8;--bg4:#F8FAFF;
+  --blue:#2563EB;--blue2:#3B82F6;--accent:#0284C7;
+  --green:#16A34A;--orange:#D97706;--red:#DC2626;
+  --text:#0F172A;--muted:#64748B;--border:#CBD5E1;--card:#FFFFFF;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg-gradient); 
-            color: var(--text-main); 
-            min-height: 100vh;
-            display: flex;
-            overflow: hidden; /* Prevent body scroll, layout handles it */
-            position: relative;
-        }
+/* ===== LAYOUT ===== */
+.app{display:grid;grid-template-columns:64px 1fr;grid-template-rows:58px 1fr;height:100vh;overflow:hidden;}
 
-        /* Ambient blurred background blobs for depth */
-        body::before, body::after {
-            content: '';
-            position: absolute;
-            border-radius: 50%;
-            z-index: 0;
-            pointer-events: none;
-        }
-        body::before {
-            top: -150px; left: -150px;
-            width: 500px; height: 500px;
-            background: var(--accent-primary);
-            filter: blur(150px); opacity: 0.15;
-        }
-        body::after {
-            bottom: -150px; right: -150px;
-            width: 600px; height: 600px;
-            background: var(--accent-secondary);
-            filter: blur(200px); opacity: 0.12;
-        }
+/* ===== SIDEBAR ===== */
+.sidebar{
+  grid-row:1/3;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;
+  transition:background .3s;z-index:20;
+}
+.logo-icon{width:40px;height:40px;background:var(--blue);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;flex-shrink:0;cursor:pointer;}
+.nav-btn{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:var(--muted);border:none;background:none;transition:all .2s;position:relative;}
+.nav-btn:hover{background:var(--bg3);color:var(--blue2);}
+.nav-btn.active{background:var(--bg3);color:var(--blue2);box-shadow:0 0 0 1.5px var(--blue2)40;}
+.nav-btn .tooltip{position:absolute;left:52px;background:#1e293b;color:#f1f5f9;font-size:11px;padding:4px 10px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;}
+.nav-btn:hover .tooltip{opacity:1;}
+.sidebar-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.theme-toggle{width:40px;height:40px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.theme-toggle:hover{background:var(--blue);border-color:var(--blue);color:white;}
+.user-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#38BDF8);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:white;}
 
-        .layout {
-            display: grid;
-            grid-template-columns: 80px 1fr 450px; /* Sidebar | Main | Chat */
-            width: 100%; height: 100vh;
-            position: relative; z-index: 1;
-        }
+/* ===== TOPBAR ===== */
+.topbar{
+  grid-column:2;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 22px;gap:16px;transition:background .3s;
+}
+.app-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px;}
+.app-sub{font-size:11px;color:var(--muted);margin-left:2px;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.live-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);background:var(--bg3);padding:5px 12px;border-radius:999px;border:1px solid var(--green)40;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.icon-btn{width:36px;height:36px;border-radius:9px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;position:relative;}
 
-        /* ---------------- Sidebar Navigation ---------------- */
-        .sidebar {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid var(--glass-border);
-            display: flex; flex-direction: column; align-items: center; padding: 2rem 0; gap: 2rem;
-            z-index: 10;
-        }
-        .sidebar .logo {
-            width: 48px; height: 48px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 20px var(--accent-glow);
-            font-size: 1.5rem;
-            color: white;
-        }
-        .nav-items { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
-        .nav-item {
-            width: 48px; height: 48px;
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            color: var(--text-muted); cursor: pointer; transition: 0.3s ease; position: relative;
-        }
-        .nav-item:hover, .nav-item.active {
-            color: var(--text-main); background: rgba(255,255,255,0.08);
-        }
-        .nav-item.active::before {
-            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-            height: 24px; width: 4px; background: var(--accent-primary); border-radius: 0 4px 4px 0;
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-        .nav-bottom { margin-top: auto; }
+/* ===== MAIN CONTENT ===== */
+.main{grid-column:2;display:grid;grid-template-columns:1fr 420px;overflow:hidden;height:100%; position: relative;}
+.left{overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:18px; padding-bottom:100px;}
+.right{background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:background .3s;}
 
-        /* ---------------- Main Content / Dashboard ---------------- */
-        .main-content {
-            padding: 2.5rem 3rem; overflow-y: auto; scroll-behavior: smooth;
-        }
-        
-        .header { margin-bottom: 2.5rem; }
-        .header h1 { 
-            font-size: 2rem; font-weight: 700; 
-            background: linear-gradient(to right, #ffffff, #94a3b8); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-            letter-spacing: -0.5px;
-        }
-        .header p { color: var(--text-muted); font-size: 1rem; margin-top: 6px; font-weight: 300; }
+/* ===== SECTION LABEL ===== */
+.sec-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);font-weight:600;margin-bottom:12px;}
 
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
-            border-radius: 20px; padding: 1.8rem; margin-bottom: 2rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .glass-card:hover { 
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5); 
-            border-color: rgba(255,255,255,0.15); 
-        }
+/* ===== STAT CARDS ===== */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:border-color .2s,transform .15s;}
+.scard:hover{border-color:var(--blue2)50;transform:translateY(-1px);}
+.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.sc-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.sc-ico.b{background:#1e3a8a25;} .sc-ico.g{background:#14532d25;} .sc-ico.o{background:#78350f25;} .sc-ico.r{background:#7f1d1d25;}
+.sc-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1; min-height: 30px;}
+.sc-lbl{font-size:11px;color:var(--muted);margin-top:3px;}
 
-        .glass-card h2 { 
-            font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; 
-            display: flex; align-items: center; gap: 10px; color: #f8fafc; 
-        }
-        .glass-card h2 i { color: var(--accent-primary); }
+/* ===== TABLE CARD ===== */
+.tcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;overflow:hidden;}
+.tcard-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.search{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--text);width:190px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s;}
+.search:focus{border-color:var(--blue2);}
+.table-wrap{width: 100%; overflow-x: auto;}
+table{width:100%;border-collapse:collapse; min-width: 600px;}
+th{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);}
+td{font-size:12px;padding:9px 10px;border-bottom:1px solid var(--border)15;color:var(--text);vertical-align:middle;}
+tbody tr:last-child td{border:none;}
+tbody tr:hover td{background:var(--bg3)50;}
+.sbadge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 9px;border-radius:999px;font-weight:500;}
+.sbadge.done{background:#14532d40;color:#4ade80;} .sbadge.go{background:#1e3a8a40;color:#60a5fa;} .sbadge.wait{background:#78350f40;color:#fbbf24;} .sbadge.bad{background:#7f1d1d40;color:var(--red);}
 
-        /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
-        .stat-card {
-            background: rgba(255,255,255,0.02); border-radius: 14px; padding: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; position: relative; overflow: hidden;
-            transition: 0.3s ease; cursor: default;
-        }
-        .stat-card:hover { background: rgba(255,255,255,0.05); transform: translateY(-3px); }
-        .stat-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; 
-            background: var(--accent-primary); border-radius: 4px 0 0 4px;
-            box-shadow: 0 0 12px var(--accent-glow);
-        }
-        .stat-card:nth-child(2)::before { background: var(--accent-secondary); box-shadow: 0 0 12px rgba(139, 92, 246, 0.4); }
-        .stat-card:nth-child(3)::before { background: var(--status-green); box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
-        .stat-card:nth-child(4)::before { background: var(--status-red); box-shadow: 0 0 12px rgba(239, 68, 68, 0.4); }
+/* ===== CHAT RIGHT PANEL ===== */
+.chat-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.bot-av{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#2563EB,#38BDF8);display:flex;align-items:center;justify-content:center;}
+.bot-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.bot-st{font-size:10px;color:var(--green);display:flex;align-items:center;gap:4px;margin-top:2px;}
 
-        .stat-card .icon-wrapper { position: absolute; right: 1.2rem; top: 1.5rem; color: var(--text-muted); opacity: 0.3; transition: 0.3s; }
-        .stat-card:hover .icon-wrapper { opacity: 0.8; transform: scale(1.1); }
-        .stat-card .val { font-size: 2.2rem; font-weight: 700; color: #fff; margin-bottom: 5px; line-height: 1; }
-        .stat-card .lbl { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+/* SUGGESTED */
+.suggested{padding:12px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sug-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;margin-bottom:8px;}
+.sug-list{display:flex;flex-direction:column;gap:5px;}
+.sug-btn{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:none;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left;width:100%;transition:all .2s;}
+.sug-btn:hover{border-color:var(--blue2);background:var(--bg3);}
+.sug-ico{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+.sug-arr{margin-left:auto;color:var(--muted);font-size:12px;}
 
-        /* Data Tables */
-        .table-container { overflow-x: auto; margin: -0.5rem; padding: 0.5rem; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        th { 
-            text-align: left; padding: 1.2rem 1rem; font-size: 0.8rem; text-transform: uppercase; 
-            letter-spacing: 0.08em; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.1); 
-            font-weight: 600;
-        }
-        td { 
-            padding: 1.2rem 1rem; font-size: 0.95rem; color: #e2e8f0; 
-            border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle;
-        }
-        tr { transition: background 0.2s ease; }
-        tr:hover td { background: rgba(255,255,255,0.03); }
-        tr:last-child td { border-bottom: none; }
-        
-        .chauffeur-cell { display: flex; align-items: center; gap: 10px; }
-        .avatar-sm { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: var(--accent-primary); }
+/* MESSAGES */
+.chat-msgs{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px; scroll-behavior: smooth;}
+.msg{display:flex;flex-direction:column;}
+.msg.user{align-items:flex-end;}
+.bubble{border-radius:14px;padding:11px 14px;font-size:13px;line-height:1.65;max-width:90%; word-wrap: break-word;}
+.msg.bot .bubble{background:var(--bg3);border:1px solid var(--border);border-radius:0 14px 14px 14px;color:var(--text);}
+.msg.user .bubble{background:var(--blue);color:white;border-radius:14px 14px 0 14px;}
+.msg-time{font-size:10px;color:var(--muted);padding:3px 4px;}
+.data-box{background:var(--bg4);border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-top:8px;}
+.data-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border)20; gap:10px;}
+.data-row:last-child{border:none;}
+.dkey{color:var(--muted);} .dval{font-weight:500;}
+.sql-query{margin-top: 8px; font-family: monospace; font-size: 10px; color: var(--accent); white-space: pre-wrap; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 6px; border: 1px dashed var(--border);}
+.typing-wrap{display:flex;gap:4px;padding:2px;}
+.typing-wrap span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bounce .9s infinite;}
+.typing-wrap span:nth-child(2){animation-delay:.18s;}
+.typing-wrap span:nth-child(3){animation-delay:.36s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
 
-        .badge { 
-            padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; 
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px; letter-spacing: 0.3px; width: fit-content;
-        }
-        .badge i { width: 12px; height: 12px; }
-        .badge-termine { background: var(--status-green-bg); color: var(--status-green); border: 1px solid rgba(16,185,129,0.3); box-shadow: 0 0 10px rgba(16,185,129,0.1); }
-        .badge-en_cours { background: var(--status-orange-bg); color: var(--status-orange); border: 1px solid rgba(245,158,11,0.3); box-shadow: 0 0 10px rgba(245,158,11,0.1); }
-        .badge-panne, .badge-annule, .badge-rouge { background: var(--status-red-bg); color: var(--status-red); border: 1px solid rgba(239,68,68,0.3); box-shadow: 0 0 10px rgba(239,68,68,0.1); }
+/* INPUT */
+.chat-input-zone{padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0;}
+.input-outer{display:flex;align-items:flex-end;gap:8px;background:var(--bg3);border:1.5px solid var(--border);border-radius:14px;padding:10px 14px;transition:border-color .2s;}
+.input-outer:focus-within{border-color:var(--blue2);}
+.cinput{flex:1;background:none;border:none;outline:none;font-size:13px;color:var(--text);resize:none;font-family:'DM Sans',sans-serif;max-height:100px;line-height:1.55;}
+.cinput::placeholder{color:var(--muted);}
+.send-btn{width:34px;height:34px;border-radius:9px;background:var(--blue);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;transition:background .2s;}
+.send-btn:hover{background:var(--blue2);}
+.send-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.input-hint{font-size:10px;color:var(--muted);text-align:center;margin-top:7px;}
 
-        /* ---------------- Chatbot Sidebar ---------------- */
-        .chat-sidebar {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-            border-left: 1px solid var(--glass-border);
-            display: flex; flex-direction: column; height: 100vh;
-            box-shadow: -10px 0 40px rgba(0,0,0,0.2);
-        }
-        .chat-header {
-            padding: 1.5rem 1.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); 
-            display: flex; align-items: center; gap: 14px; background: rgba(0,0,0,0.2);
-        }
-        .chat-header .bot-avatar {
-            width: 44px; height: 44px; border-radius: 14px; 
-            background: linear-gradient(135deg, var(--accent-primary), #60a5fa);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 15px var(--accent-glow); position: relative;
-        }
-        .chat-header .bot-avatar::after {
-            content: ''; position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px;
-            background: var(--status-green); border: 2px solid #0f172a; border-radius: 50%;
-        }
-        .chat-header h3 { font-size: 1.15rem; font-weight: 600; color: white; letter-spacing: -0.3px; }
-        .chat-header p { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+/* Responsive Design */
+.mobile-chat-toggle { display: none; }
+@media (max-width: 1024px) {
+  .main{grid-template-columns:1fr;}
+  .right{position:absolute;right:-400px;top:0;width:380px;height:100%;z-index:30;box-shadow:-5px 0 25px rgba(0,0,0,0.5);transition:right 0.3s;}
+  .right.open{right:0;}
+  .mobile-chat-toggle { display:flex; align-items:center; justify-content:center; font-size:18px; background:var(--blue); color:white; width:44px; height:44px; border-radius:50%; position:absolute; bottom:20px; right:20px; z-index:25; cursor:pointer; box-shadow:0 4px 15px rgba(37,99,235,0.4);border:none;}
+  .chat-close { display: block; margin-left: auto; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+}
+@media (min-width: 1025px) {
+  .chat-close { display: none; }
+}
+@media (max-width: 768px) {
+  .app{grid-template-columns:1fr; grid-template-rows:58px 1fr 64px;}
+  .sidebar{grid-row:3; grid-column:1; border-right:none; border-top:1px solid var(--border); flex-direction:row; padding:0 20px; justify-content:space-between; height:64px; z-index:50;}
+  .sidebar-bottom { display:none;} /* Hide theme toggle from bottom on mobile, move to topbar */
+  .logo-icon{display:none;}
+  .nav-btn .tooltip{display:none;}
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .right{width:100%; right:-100%;}
+  .left{padding: 14px; padding-bottom: 80px;}
+}
 
-        .suggestions-scroll {
-            display: flex; gap: 10px; padding: 1.2rem 1.8rem; overflow-x: auto; scrollbar-width: none;
-            border-bottom: 1px solid rgba(255,255,255,0.03); background: rgba(255,255,255,0.01);
-        }
-        .suggestions-scroll::-webkit-scrollbar { display: none; }
-        .suggestion-btn {
-            white-space: nowrap; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25);
-            color: #93c5fd; padding: 8px 16px; border-radius: 30px; font-size: 0.85rem; font-weight: 500;
-            cursor: pointer; transition: 0.2s ease;
-        }
-        .suggestion-btn:hover { background: rgba(59, 130, 246, 0.2); transform: translateY(-1px); }
-        .suggestion-btn i { width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px; }
-
-        .chat-messages {
-            flex: 1; padding: 1.8rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; scroll-behavior: smooth;
-        }
-
-        /* Scrollbar custom for general use */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-
-        .msg { display: flex; flex-direction: column; max-width: 88%; animation: floatIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes floatIn { 
-            from { opacity: 0; transform: translateY(15px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        
-        .msg.bot { align-self: flex-start; }
-        .msg.user { align-self: flex-end; align-items: flex-end; }
-        
-        .bubble {
-            padding: 14px 18px; border-radius: 18px; font-size: 0.95rem; line-height: 1.6;
-            word-wrap: break-word; font-weight: 400; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .msg.user .bubble {
-            background: linear-gradient(135deg, var(--accent-primary), #2563eb); color: white; border-bottom-right-radius: 4px;
-        }
-        .msg.bot .bubble {
-            background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255,255,255,0.08);
-            color: #e2e8f0; border-bottom-left-radius: 4px; backdrop-filter: blur(10px);
-        }
-        .msg.bot .bubble strong { color: white; font-weight: 600; }
-        
-        .sql-preview {
-            margin-top: 12px; background: rgba(0,0,0,0.4); border-radius: 10px; padding: 12px;
-            font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; color: #a78bfa;
-            border: 1px solid rgba(139, 92, 246, 0.3); overflow-x: auto; white-space: pre-wrap;
-            position: relative;
-        }
-        .sql-preview::before { content: 'SQL'; position: absolute; top: 0; right: 0; background: rgba(139,92,246,0.3); color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 0 8px 0 8px; font-family: 'Inter', sans-serif;}
-        
-        .chat-data-table {
-            margin-top: 12px; background: rgba(0,0,0,0.25); border-radius: 12px; overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.08); max-width: 100%; overflow-x: auto;
-        }
-        .chat-data-table table { font-size: 0.85rem; width: 100%; border-collapse: collapse; }
-        .chat-data-table th { padding: 10px; background: rgba(255,255,255,0.05); color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: 600;}
-        .chat-data-table td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); }
-        .chat-data-table tr:hover td { background: rgba(255,255,255,0.03); }
-
-        /* Typing indicator dots */
-        .typing { display: flex; align-items: center; gap: 5px; padding: 8px 6px; }
-        .typing span { width: 8px; height: 8px; background: #94a3b8; border-radius: 50%; opacity: 0.4; }
-        .typing span:nth-child(1) { animation: bounce 1.4s infinite 0s; }
-        .typing span:nth-child(2) { animation: bounce 1.4s infinite 0.2s; }
-        .typing span:nth-child(3) { animation: bounce 1.4s infinite 0.4s; }
-        @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-6px); opacity: 1; background: var(--accent-primary); } }
-
-        .chat-input-area {
-            padding: 1.5rem 1.8rem; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.9);
-            z-index: 2;
-        }
-        .input-group {
-            display: flex; gap: 10px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 30px; padding: 6px 6px 6px 20px; transition: all 0.3s ease;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .input-group:focus-within { 
-            border-color: var(--accent-primary); 
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 0 3px rgba(59,130,246,0.15); 
-            background: rgba(0,0,0,0.3); 
-        }
-        
-        .input-group input {
-            flex: 1; background: transparent; border: none; outline: none; padding: 10px 0;
-            color: white; font-size: 0.95rem; font-family: 'Inter', sans-serif;
-        }
-        .input-group input::placeholder { color: #64748b; font-weight: 300; }
-        
-        .send-btn {
-            background: var(--accent-primary); color: white; border: none; border-radius: 50%;
-            width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 4px 10px rgba(59,130,246,0.3);
-        }
-        .send-btn:hover { background: #2563eb; transform: scale(1.08) rotate(-5deg); box-shadow: 0 6px 15px rgba(59,130,246,0.4); }
-        .send-btn:active { transform: scale(0.95); }
-        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-        
-        .loading-skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 4px; color: transparent !important; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .layout { grid-template-columns: 80px 1fr 400px; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-            .main-content { padding: 2rem; }
-        }
-        @media (max-width: 992px) {
-            .layout { grid-template-columns: 80px 1fr; }
-            .chat-sidebar { position: absolute; right: -450px; width: 420px; z-index: 100; transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: -15px 0 50px rgba(0,0,0,0.5); }
-            /* To toggle sidebar on mobile you'd need a button, but for now we assume desktop-first or swipe logic */
-            .sidebar .nav-item[title="Chat"] { display: flex; } /* Hypothetical toggle button */
-        }
-        @media (max-width: 768px) {
-            .layout { grid-template-columns: 1fr; }
-            .sidebar { flex-direction: row; height: 70px; padding: 0 1rem; justify-content: space-between; position: fixed; bottom: 0; width: 100%; border-right: none; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(15,23,42,0.9); }
-            .sidebar .logo { width: 40px; height: 40px; font-size: 1.2rem; margin:0; }
-            .nav-items { flex-direction: row; flex: unset; gap: 0.5rem; }
-            .nav-item { width: 40px; height: 40px; }
-            .nav-item.active::before { top: 0; left: 50%; width: 20px; height: 4px; transform: translateX(-50%); border-radius: 0 0 4px 4px; }
-            .nav-bottom { display: none; }
-            .main-content { padding: 1.5rem; padding-bottom: 100px; }
-            .header h1 { font-size: 1.6rem; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .chat-sidebar { width: 100%; right: -100vw; }
-        }
-    </style>
+</style>
 </head>
 <body>
+<div class="app" id="app">
 
-<div class="layout">
-    <!-- Sidebar Navigation -->
-    <div class="sidebar">
-        <div class="logo"><i data-lucide="bus" style="color:white; width: 24px;"></i></div>
-        <div class="nav-items">
-            <div class="nav-item active" title="Dashboard" onclick="window.location.href='/dashboard'"><i data-lucide="layout-dashboard"></i></div>
-            <div class="nav-item" title="Stations" onclick="window.location.href='/stations'"><i data-lucide="map-pin"></i></div>
-            <div class="nav-item" title="Maintenance" onclick="window.location.href='/maintenance'"><i data-lucide="wrench"></i></div>
-            <div class="nav-item" title="Ajouter Données" onclick="window.location.href='/add-data'"><i data-lucide="plus-circle"></i></div>
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="logo-icon" onclick="window.location.href='/dashboard'"><i data-lucide="bus" size="22" color="white"></i></div>
+    <button class="nav-btn active" onclick="window.location.href='/dashboard'"><i data-lucide="layout-dashboard"></i><span class="tooltip">Dashboard</span></button>
+    <button class="nav-btn" onclick="window.location.href='/stations'"><i data-lucide="map-pin"></i><span class="tooltip">Stations</span></button>
+    <button class="nav-btn" onclick="window.location.href='/maintenance'"><i data-lucide="wrench"></i><span class="tooltip">Maintenance</span></button>
+    <button class="nav-btn" onclick="window.location.href='/add-data'"><i data-lucide="plus-circle"></i><span class="tooltip">Ajouter</span></button>
+    
+    <div class="sidebar-bottom">
+      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="Mode jour/nuit"><i data-lucide="moon"></i></button>
+      <div class="user-av">A</div>
+    </div>
+  </nav>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div>
+      <span class="app-name">TranspoBot</span>
+      <span class="app-sub" id="desktop-sub"> — Vue d'ensemble</span>
+    </div>
+    <div class="topbar-right">
+      <div class="live-pill"><div class="dot"></div>En ligne</div>
+      <!-- Theme toggle for mobile only -->
+      <button class="icon-btn theme-mobile" style="display:none;" onclick="toggleTheme()"><i data-lucide="moon" id="themeBtnMob"></i></button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- LEFT -->
+    <div class="left">
+      <section id="tab-dash">
+        <div class="sec-lbl">Dashboard principal</div>
+        <div class="stats">
+          <div class="scard">
+            <div class="sc-top"><div class="sc-ico b"><i data-lucide="activity" style="color:var(--blue)"></i></div></div>
+            <div class="sc-val" id="stat-total">--</div><div class="sc-lbl">Total Trajets (Terminés)</div>
+          </div>
+          <div class="scard">
+            <div class="sc-top"><div class="sc-ico g"><i data-lucide="check-circle" style="color:var(--green)"></i></div></div>
+            <div class="sc-val" id="stat-actifs">--</div><div class="sc-lbl">Véhicules actifs</div>
+          </div>
+          <div class="scard">
+            <div class="sc-top"><div class="sc-ico o"><i data-lucide="navigation" style="color:var(--orange)"></i></div></div>
+            <div class="sc-val" id="stat-maint">--</div><div class="sc-lbl">Trajets en cours</div>
+          </div>
+          <div class="scard">
+            <div class="sc-top"><div class="sc-ico r"><i data-lucide="alert-triangle" style="color:var(--red)"></i></div></div>
+            <div class="sc-val" id="stat-incidents" style="color:var(--red)">--</div><div class="sc-lbl">Incidents ouverts</div>
+          </div>
         </div>
-        <div class="nav-item nav-bottom" title="Paramètres"><i data-lucide="settings"></i></div>
+
+        <div style="margin-top:10px;" class="tcard">
+          <div class="tcard-hd">
+            <span style="font-size:13px;font-weight:600;"><i data-lucide="clock" size="14" style="vertical-align:middle;margin-right:4px;"></i> Départs Récents</span>
+            <button class="icon-btn" style="width:28px;height:28px;font-size:12px;" onclick="fetchTrajets()" title="Rafraîchir"><i data-lucide="refresh-cw" size="14"></i></button>
+          </div>
+          <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Ligne</th><th>Chauffeur</th><th>Départ</th><th>Statut</th></tr>
+                </thead>
+                <tbody id="trajets-body">
+                  <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:14px;">Chargement...</td></tr>
+                </tbody>
+              </table>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Mobile Chat Toggle -->
+      <button class="mobile-chat-toggle" onclick="toggleChat()"><i data-lucide="message-square"></i></button>
     </div>
 
-    <!-- Main Dashboard Area -->
-    <div class="main-content">
-        <div class="header">
-            <h1>TranspoBot Hub</h1>
-            <p>Supervision intelligente et centralisée de votre réseau.</p>
+    <!-- ===== RIGHT — CHATBOT ===== -->
+    <div class="right" id="chatPanel">
+      <div class="chat-header">
+        <div class="bot-av"><i data-lucide="bot" color="white"></i></div>
+        <div>
+          <div class="bot-name">TranspoBot IA</div>
+          <div class="bot-st"><div class="dot"></div>Prêt à répondre</div>
         </div>
+        <button class="chat-close" onclick="toggleChat()"><i data-lucide="x"></i></button>
+      </div>
 
-        <!-- KPIs / Stats Grid -->
-        <div class="glass-card">
-            <h2><i data-lucide="activity"></i> Analytics en temps réel</h2>
-            <div class="stats-grid" id="stats-grid">
-                <!-- Data fetched via API -->
-                <div class="stat-card">
-                    <div class="icon-wrapper"><i data-lucide="trending-up" size="48"></i></div>
-                    <div class="val loading-skeleton" id="stat-total">000</div>
-                    <div class="lbl">Total Trajets</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon-wrapper"><i data-lucide="navigation" size="48"></i></div>
-                    <div class="val loading-skeleton" id="stat-encours">000</div>
-                    <div class="lbl">En cours</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon-wrapper"><i data-lucide="bus-front" size="48"></i></div>
-                    <div class="val loading-skeleton" id="stat-actifs">000</div>
-                    <div class="lbl">Véhicules Actifs</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon-wrapper"><i data-lucide="alert-triangle" size="48"></i></div>
-                    <div class="val loading-skeleton" id="stat-incidents" style="color: var(--status-red)">000</div>
-                    <div class="lbl">Incidents Ouverts</div>
-                </div>
-            </div>
+      <div class="suggested">
+        <div class="sug-lbl">Questions suggérées</div>
+        <div class="sug-list">
+          <button class="sug-btn" onclick="askQ('Affiche moi le chiffre d\'affaire du mois')"><span class="sug-ico">💰</span>Chiffre d'affaire du mois<span class="sug-arr">↗</span></button>
+          <button class="sug-btn" onclick="askQ('Quels sont les trajets en cours ?')"><span class="sug-ico">📍</span>Trajets en cours<span class="sug-arr">↗</span></button>
+          <button class="sug-btn" onclick="askQ('Quels véhicules sont en maintenance ?')"><span class="sug-ico">🔧</span>Véhicules en panne<span class="sug-arr">↗</span></button>
         </div>
+      </div>
 
-        <!-- Recent Trips Table -->
-        <div class="glass-card">
-            <h2 style="display: flex; justify-content: space-between; align-items: center; width:100%">
-                <span style="display: flex; align-items: center; gap: 10px;"><i data-lucide="clock"></i> Départs Récents</span>
-                <i data-lucide="refresh-cw" size="18" style="cursor: pointer; color: var(--text-muted); transition: 0.3s;" onclick="refreshDashboard(this)" title="Actualiser"></i>
-            </h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Itinéraire</th>
-                            <th>Conducteur</th>
-                            <th>Départ Prévu</th>
-                            <th>État Actuel</th>
-                        </tr>
-                    </thead>
-                    <tbody id="trajets-body">
-                        <!-- Skeleton loader for table -->
-                        <tr><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td></tr>
-                        <tr><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td></tr>
-                        <tr><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td></tr>
-                    </tbody>
-                </table>
-            </div>
+      <div class="chat-msgs" id="chatMsgs">
+        <div class="msg bot">
+          <div class="bubble">🔌 Système en ligne. Bonjour, je suis <strong>TranspoBot</strong>, l'IA connectée à votre base de données MySQL.<br><br>Que souhaitez-vous analyser ?</div>
+          <div class="msg-time">Système</div>
         </div>
+      </div>
+
+      <div class="chat-input-zone">
+        <div class="input-outer">
+          <textarea class="cinput" id="chatInput" rows="1" placeholder="Demandez le total des trajets..." onkeydown="handleKey(event)"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMsg()"><i data-lucide="send" size="16"></i></button>
+        </div>
+      </div>
     </div>
 
-    <!-- Chatbot Sidebar (Right Panel) -->
-    <div class="chat-sidebar" id="chat-sidebar">
-        <div class="chat-header">
-            <div class="bot-avatar"><i data-lucide="bot" style="color: white; width: 22px;"></i></div>
-            <div>
-                <h3>Assistant IA</h3>
-                <p>Posez-moi une question sur vos données</p>
-            </div>
-        </div>
-        
-        <div class="suggestions-scroll">
-            <div class="suggestion-btn" onclick="ask('Quels sont les trajets en cours ?')"><i data-lucide="play-circle"></i> Trajets actifs</div>
-            <div class="suggestion-btn" onclick="ask('Quels véhicules sont en maintenance ?')"><i data-lucide="tool"></i> Maintenance</div>
-            <div class="suggestion-btn" onclick="ask('Quel chauffeur a effectué le plus de trajets ?')"><i data-lucide="award"></i> Top Chauffeur</div>
-            <div class="suggestion-btn" onclick="ask('Affiche moi le chiffre d\'affaire du mois')"><i data-lucide="dollar-sign"></i> Recettes</div>
-        </div>
-
-        <div class="chat-messages" id="chat-messages">
-            <div class="msg bot">
-                <div class="bubble">🔌 Système en ligne. Bonjour, je suis <strong>TranspoBot</strong>, l'intelligence artificielle connectée à votre base de données MySQL.<br><br>Générez des rapports, vérifiez l'état d'un chauffeur ou l'historique d'un véhicule très simplement. Que souhaitez-vous analyser ?</div>
-            </div>
-        </div>
-
-        <div class="chat-input-area">
-            <div class="input-group">
-                <input type="text" id="chat-input" placeholder="Ex: Affiche le nombre d'incidents ce mois..." onkeypress="handleEnter(event)">
-                <button class="send-btn" id="send-btn" onclick="sendMessage()"><i data-lucide="send" size="18"></i></button>
-            </div>
-        </div>
-    </div>
+  </main>
 </div>
 
 <script>
-    // Initialize Lucide Icons
-    lucide.createIcons();
-    
-    // Configuration
-    const API = window.location.origin;
+// Icon Init
+lucide.createIcons();
 
-    // Helper functions
-    const formatDate = (dateString) => {
-        if (!dateString) return 'Non défini';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour:'2-digit', minute:'2-digit' }).replace(',', ' à');
-    };
+const API = window.location.origin + "/";
 
-    const getInitials = (name) => {
-        if(!name) return 'X';
-        const parts = name.split(' ');
-        return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
-    };
+// Theme logic
+let isLight = false;
+if (localStorage.getItem('theme') === 'light') toggleTheme(true);
 
-    // Remove skeleton class
-    const updateStat = (id, val) => {
-        const el = document.getElementById(id);
-        el.classList.remove('loading-skeleton');
-        el.textContent = val;
-        // Small pop animation
-        el.style.transform = 'scale(1.1)';
-        setTimeout(() => el.style.transform = 'scale(1)', 200);
-    };
+function toggleTheme(forceLight = null) {
+  isLight = forceLight !== null ? forceLight : !isLight;
+  document.documentElement.classList.toggle('light', isLight);
+  const icoStr = isLight ? 'moon' : 'sun'; // the opposite
+  
+  const mIcon = document.querySelector('#themeBtn i');
+  if(mIcon) {
+     const newIco = document.createElement('i');
+     newIco.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+     mIcon.replaceWith(newIco);
+  }
+  const mobIco = document.querySelector('#themeBtnMob');
+  if(mobIco) mobIco.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+  
+  lucide.createIcons();
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
 
-    // Dashboard Data Fetching
-    async function fetchStats() {
-        try {
-            const res = await fetch(`${API}/api/stats`);
-            if(!res.ok) throw new Error("API Error");
-            const data = await res.json();
-            updateStat('stat-total', data.total_trajets ?? '0');
-            updateStat('stat-encours', data.trajets_en_cours ?? '0');
-            updateStat('stat-actifs', data.vehicules_actifs ?? '0');
-            updateStat('stat-incidents', data.incidents_ouverts ?? '0');
-        } catch (e) {
-            console.error(e);
-            updateStat('stat-total', 'N/A');
-            updateStat('stat-encours', 'N/A');
-            updateStat('stat-actifs', 'N/A');
-            updateStat('stat-incidents', 'N/A');
-        }
+// Mobile specific sizing adjustments
+if(window.innerWidth <= 768){
+   document.querySelector('.theme-mobile').style.display = 'flex';
+}
+
+function toggleChat(){
+  document.getElementById('chatPanel').classList.toggle('open');
+}
+
+function handleKey(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMsg(); }
+}
+
+function now(){ return new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
+
+function formatDate(dateString) {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    return date.toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour:'2-digit', minute:'2-digit' }).replace(',', ' à');
+}
+
+async function fetchStats(){
+  try {
+    const res = await fetch(`${API}api/stats`);
+    if(!res.ok) throw new Error('API failed');
+    const data = await res.json();
+    document.getElementById('stat-total').textContent = data.total_trajets ?? '0';
+    document.getElementById('stat-actifs').textContent = data.vehicules_actifs ?? '0';
+    document.getElementById('stat-maint').textContent = data.trajets_en_cours ?? '0';
+    document.getElementById('stat-incidents').textContent = data.incidents_ouverts ?? '0';
+  } catch (e) {
+    document.getElementById('stat-total').textContent = 'N/A';
+    document.getElementById('stat-actifs').textContent = 'N/A';
+    document.getElementById('stat-maint').textContent = 'N/A';
+    document.getElementById('stat-incidents').textContent = 'N/A';
+  }
+}
+
+async function fetchTrajets(){
+  const tbody = document.getElementById('trajets-body');
+  try {
+    const res = await fetch(`${API}api/trajets/recent`);
+    if(!res.ok) throw new Error('API failed');
+    const data = await res.json();
+    if(!Array.isArray(data) || data.length === 0){
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:14px;">Aucun trajet trouvé.</td></tr>`;
+      return;
     }
+    tbody.innerHTML = data.slice(0,8).map(t=>{
+      const statut = t.statut ?? 'inconnu';
+      const badge = statut === 'en_cours' ? 'go' : statut === 'termine' ? 'done' : (statut === 'annule' || statut === 'panne') ? 'bad' : 'wait';
+      const statusLabel = statut.replace('_', ' ').toUpperCase();
+      const depart = t.date_heure_depart ? formatDate(t.date_heure_depart) : '--';
+      return `
+        <tr>
+          <td style="font-weight:500;">${t.ligne || '—'}</td>
+          <td>${t.chauffeur_nom || 'Inconnu'}</td>
+          <td style="color:var(--muted)">${depart}</td>
+          <td><span class="sbadge ${badge}">● ${statusLabel}</span></td>
+        </tr>`;
+    }).join('');
+  } catch(e){
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:14px;">Le serveur backend est-il allumé ? (Port 8000)</td></tr>`;
+  }
+}
 
-    async function fetchTrajets() {
-        const tbody = document.getElementById('trajets-body');
-        try {
-            const res = await fetch(`${API}/api/trajets/recent`);
-            if(!res.ok) throw new Error("API Error");
-            const data = await res.json();
-            
-            if(!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Aucun trajet trouvé dans la base de données.</td></tr>`;
-                return;
-            }
+function addMsg(role, text, isHtml=false){
+  const box = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className = 'msg '+role;
+  let h = `<div class="bubble">${isHtml ? text : text.replace(/\\n/g, '<br>')}</div>`;
+  h += `<div class="msg-time">${now()}</div>`;
+  d.innerHTML = h;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
 
-            tbody.innerHTML = data.slice(0, 8).map((t, index) => {
-                let badgeClass = 'badge-termine';
-                let iconName = 'check-circle-2';
-                let statutStr = t.statut ? t.statut.toUpperCase().replace('_', ' ') : 'INCONNU';
-                
-                if(t.statut === 'en_cours') { badgeClass = 'badge-en_cours'; iconName = 'loader'; }
-                else if(t.statut === 'annule' || t.statut === 'panne' || t.statut === 'retard') { badgeClass = 'badge-panne'; iconName = 'alert-octagon'; }
-                else if(t.statut === 'planifie') { badgeClass = 'badge'; iconName = 'calendar'; }
+function addTyping(){
+  const box = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className = 'msg bot'; d.id = 'typingBubble';
+  d.innerHTML = `<div class="bubble" style="padding:14px 16px"><div class="typing-wrap"><span></span><span></span><span></span></div></div>`;
+  box.appendChild(d); box.scrollTop = box.scrollHeight;
+}
 
-                const chauffeurName = t.chauffeur_nom || 'Inconnu';
-                
-                return `
-                <tr style="animation: floatIn 0.3s ease forwards; animation-delay: ${index * 0.05}s; opacity: 0;">
-                    <td><div style="font-weight: 500; display:flex; align-items:center; gap:8px;"><i data-lucide="map" size="16" style="color:var(--text-muted)"></i> ${t.ligne || 'N/A'}</div></td>
-                    <td>
-                        <div class="chauffeur-cell">
-                            <div class="avatar-sm">${getInitials(chauffeurName)}</div>
-                            <span>${chauffeurName}</span>
-                        </div>
-                    </td>
-                    <td>${formatDate(t.date_heure_depart)}</td>
-                    <td><span class="badge ${badgeClass}"><i data-lucide="${iconName}"></i> ${statutStr}</span></td>
-                </tr>`;
-            }).join('');
-            
-            lucide.createIcons(); // Instanciate injected icons
-        } catch (e) {
-            console.error(e);
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--status-red); padding: 2rem;"><i data-lucide="wifi-off" style="margin-bottom:10px;"></i><br>Serveur inaccessible. Assurez-vous que FastAPI tourne sur le port 8000.</td></tr>`;
-            lucide.createIcons();
-        }
-    }
+async function sendMsg(){
+  const inp = document.getElementById('chatInput');
+  const q = inp.value.trim();
+  if(!q) return;
+  addMsg('user', q);
+  inp.value = '';
+  inp.style.height = '';
+  addTyping();
+  
+  const b = document.getElementById('sendBtn');
+  b.disabled = true;
 
-    function refreshDashboard(iconElement) {
-        if(iconElement) {
-            iconElement.style.transform = 'rotate(180deg)';
-            setTimeout(() => iconElement.style.transform = 'rotate(0deg)', 500);
-        }
-        document.getElementById('trajets-body').innerHTML = `<tr><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td></tr>`;
-        fetchStats();
-        fetchTrajets();
-    }
-
-    // Chatbot Implementation
-    const chatContainer = document.getElementById('chat-messages');
-    const inputField = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-btn');
-
-    function scrollToBottom() {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    function appendUserMessage(text) {
-        const div = document.createElement('div');
-        div.className = 'msg user';
-        div.innerHTML = `<div class="bubble">${text}</div>`;
-        chatContainer.appendChild(div);
-        scrollToBottom();
-    }
-
-    function appendTypingIndicator() {
-        const div = document.createElement('div');
-        div.className = 'msg bot typing-wrapper';
-        div.innerHTML = `<div class="bubble typing"><span></span><span></span><span></span></div>`;
-        chatContainer.appendChild(div);
-        scrollToBottom();
-        return div;
-    }
-
-    function generateDataTable(dataArray) {
-        if(!dataArray || dataArray.length === 0) return '';
-        const keys = Object.keys(dataArray[0]);
-        const thead = keys.map(k => `<th>${k}</th>`).join('');
-        const tbody = dataArray.map(row => {
-            const cells = keys.map(k => {
-                let val = row[k];
-                if(val === null || val === undefined) val = '-';
-                // If it looks like ISO date, format slightly
-                if(typeof val === 'string' && val.includes('T') && val.length > 15) val = formatDate(val);
-                return `<td>${val}</td>`;
-            });
-            return `<tr>${cells.join('')}</tr>`;
-        }).join('');
-        return `<div class="chat-data-table"><table><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table></div>`;
-    }
-
-    async function sendMessage(text = null) {
-        const query = (text || inputField.value).trim();
-        if (!query) return;
-
-        inputField.value = '';
-        inputField.disabled = true;
-        sendBtn.disabled = true;
-        sendBtn.innerHTML = '<i data-lucide="loader" class="rotate-ico"></i>';
-        lucide.createIcons();
-        document.querySelector('.rotate-ico').style.animation = 'loading 1s linear infinite';
-
-        appendUserMessage(query);
-        const typingEl = appendTypingIndicator();
-
-        try {
-            const res = await fetch(`${API}/api/chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question: query })
-            });
-            const data = await res.json();
-            
-            typingEl.remove();
-
-            const botDiv = document.createElement('div');
-            botDiv.className = 'msg bot';
-            
-            let bubbleContent = `<div>${data.answer || "Désolé, je n'ai pas de réponse claire."}</div>`;
-            
-            // Meta results info and table rendering
-            if (data.data && data.data.length > 0) {
-                 bubbleContent += `<div style="margin-top:12px; margin-bottom: 8px; font-weight: 500; font-size: 0.85rem; color: var(--status-green);"><i data-lucide="check-circle" size="14"></i> Résultats trouvés (${data.count} lignes) :</div>`;
-                 bubbleContent += generateDataTable(data.data);
-            } else if (data.sql && (!data.data || data.data.length === 0)) {
-                 // Si une requête a été exécutée mais aucun résultat n'est revenu
-                 bubbleContent += `<div style="margin-top:12px; font-weight: 500; font-size: 0.85rem; color: var(--status-orange);"><i data-lucide="info" size="14"></i> La recherche est terminée mais aucun résultat ne correspond à votre demande.</div>`;
-            }
-
-            botDiv.innerHTML = `<div class="bubble">${bubbleContent}</div>`;
-            chatContainer.appendChild(botDiv);
-            lucide.createIcons();
-            
-        } catch (e) {
-            typingEl.remove();
-            const botDiv = document.createElement('div');
-            botDiv.className = 'msg bot';
-            botDiv.innerHTML = `<div class="bubble" style="border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05);"><i data-lucide="alert-triangle" size="16" style="color:#ef4444"></i> Erreur de communication API: Le backend est-il lancé ?</div>`;
-            chatContainer.appendChild(botDiv);
-            lucide.createIcons();
-        } finally {
-            inputField.disabled = false;
-            sendBtn.disabled = false;
-            sendBtn.innerHTML = '<i data-lucide="send" size="18"></i>';
-            lucide.createIcons();
-            inputField.focus();
-            scrollToBottom();
-            
-            // Refresh dashboard data as a side effect
-            fetchStats();
-            fetchTrajets();
-        }
-    }
-
-    function handleEnter(e) {
-        if (e.key === 'Enter') sendMessage();
-    }
-
-    function ask(query) {
-        inputField.value = query;
-        sendMessage();
-    }
-
-    // Initialize fetching on page load
-    document.addEventListener("DOMContentLoaded", () => {
-        // Set short delay simulating loading for aesthetic purposes
-        setTimeout(() => {
-            fetchStats();
-            fetchTrajets();
-        }, 600);
+  try {
+    const response = await fetch(`${API}api/chat`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({question:q})
     });
 
-</script>
+    document.getElementById('typingBubble')?.remove();
 
+    if(!response.ok){
+      addMsg('bot', 'Erreur API chat. Assurez-vous que le backend FastAPI est lancé.', true);
+      return;
+    }
+
+    const result = await response.json();
+    let botMsg = result.answer || 'Recherche terminée mais pas d\'explication fournie.';
+    if(result.sql){ botMsg += `<div class="sql-query">SQL: ${result.sql}</div>`; }
+
+    // Table data formatting
+    if(result.data && Array.isArray(result.data) && result.data.length){
+      const keysStr = Object.keys(result.data[0]).join(", ");
+      botMsg += `<div style="font-size:10px; margin-top:8px; color:var(--green)">● ${result.count} résultat(s) trouvé(s)</div>`;
+      const tableHtml = `<div class="data-box">${result.data.slice(0,5).map(row=>
+        `<div class="data-row" style="flex-wrap:wrap;">${Object.entries(row).map(([k,v])=>`<div style="font-size:10px;"><span class="dkey">${k}</span>: <span class="dval">${v}</span></div>`).join('')}</div>`
+      ).join('')}</div>`;
+      botMsg += tableHtml;
+      if(result.data.length > 5) botMsg += `<div style="font-size:10px; color:var(--muted); margin-top:4px;">... et ${result.data.length - 5} autres lignes</div>`;
+    } else if (result.sql && result.count === 0) {
+      botMsg += `<div style="font-size:10px; margin-top:8px; color:var(--orange)">⚠️ Aucun résultat trouvé pour la requête SQL.</div>`;
+    }
+
+    addMsg('bot', botMsg, true);
+
+    fetchStats();
+    fetchTrajets();
+
+  } catch (e){
+    document.getElementById('typingBubble')?.remove();
+    addMsg('bot', 'Impossible de joindre l’API chat.', true);
+  } finally {
+    b.disabled = false;
+  }
+}
+
+function askQ(q){
+  document.getElementById('chatInput').value = q;
+  sendMsg();
+}
+
+// Auto-resize textarea
+document.getElementById('chatInput').addEventListener('input', function(){
+  this.style.height = '';
+  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
+
+// Init fetch
+fetchStats();
+fetchTrajets();
+</script>
 </body>
 </html>

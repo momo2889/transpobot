@@ -1,836 +1,473 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajouter Données - TranspoBot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --bg-gradient: linear-gradient(135deg, #020617 0%, #0f172a 100%);
-            --glass-bg: rgba(30, 41, 59, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            --accent-primary: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.4);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --status-green: #10b981;
-            --status-orange: #f59e0b;
-            --status-red: #ef4444;
-            --success: #10b981;
-        }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TranspoBot — Ajouter Données</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0B0F1A;--bg2:#111827;--bg3:#1a2235;--bg4:#0d1526;
+  --blue:#2563EB;--blue2:#3B82F6;--accent:#38BDF8;
+  --green:#22C55E;--orange:#F59E0B;--red:#EF4444;
+  --text:#F1F5F9;--muted:#64748B;--border:#1E293B;--card:#141D2E;
+  --radius:14px;
+}
+.light{
+  --bg:#F0F4FA;--bg2:#FFFFFF;--bg3:#E8EEF8;--bg4:#F8FAFF;
+  --blue:#2563EB;--blue2:#3B82F6;--accent:#0284C7;
+  --green:#16A34A;--orange:#D97706;--red:#DC2626;
+  --text:#0F172A;--muted:#64748B;--border:#CBD5E1;--card:#FFFFFF;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ===== LAYOUT ===== */
+.app{display:grid;grid-template-columns:64px 1fr;grid-template-rows:58px 1fr;height:100vh;overflow:hidden;}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-main);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
+/* ===== SIDEBAR ===== */
+.sidebar{
+  grid-row:1/3;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;
+  transition:background .3s;z-index:20;
+}
+.logo-icon{width:40px;height:40px;background:var(--blue);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;flex-shrink:0;cursor:pointer;}
+.nav-btn{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:var(--muted);border:none;background:none;transition:all .2s;position:relative;}
+.nav-btn:hover{background:var(--bg3);color:var(--blue2);}
+.nav-btn.active{background:var(--bg3);color:var(--blue2);box-shadow:0 0 0 1.5px var(--blue2)40;}
+.nav-btn .tooltip{position:absolute;left:52px;background:#1e293b;color:#f1f5f9;font-size:11px;padding:4px 10px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;}
+.nav-btn:hover .tooltip{opacity:1;}
+.sidebar-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.theme-toggle{width:40px;height:40px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.theme-toggle:hover{background:var(--blue);border-color:var(--blue);color:white;}
+.user-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#38BDF8);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:white;}
 
-        /* Ambient background blobs */
-        body::before, body::after {
-            content: '';
-            position: absolute;
-            border-radius: 50%;
-            z-index: 0;
-            pointer-events: none;
-        }
-        body::before {
-            top: -150px; left: -150px;
-            width: 500px; height: 500px;
-            background: var(--accent-primary);
-            filter: blur(150px); opacity: 0.15;
-        }
-        body::after {
-            bottom: -150px; right: -150px;
-            width: 600px; height: 600px;
-            background: #8b5cf6;
-            filter: blur(200px); opacity: 0.12;
-        }
+/* ===== TOPBAR ===== */
+.topbar{
+  grid-column:2;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 22px;gap:16px;transition:background .3s;
+}
+.app-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px;}
+.app-sub{font-size:11px;color:var(--muted);margin-left:2px;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.live-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);background:var(--bg3);padding:5px 12px;border-radius:999px;border:1px solid var(--green)40;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.icon-btn{width:36px;height:36px;border-radius:9px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;}
 
-        .layout {
-            display: grid;
-            grid-template-columns: 80px 1fr;
-            width: 100%; height: 100vh;
-            position: relative; z-index: 1;
-        }
+/* ===== MAIN CONTENT ===== */
+.main{grid-column:2;display:flex;flex-direction:column;overflow-y:auto;padding:24px;padding-bottom:100px;scroll-behavior:smooth;}
+.sec-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);font-weight:600;margin-bottom:12px;}
 
-        /* Sidebar Navigation */
-        .sidebar {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid var(--glass-border);
-            display: flex; flex-direction: column; align-items: center; padding: 2rem 0; gap: 2rem;
-            z-index: 10;
-        }
-        .sidebar .logo {
-            width: 48px; height: 48px;
-            background: linear-gradient(135deg, var(--accent-primary), #8b5cf6);
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 20px var(--accent-glow);
-            font-size: 1.5rem;
-            color: white;
-            cursor: pointer;
-        }
-        .nav-items { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
-        .nav-item {
-            width: 48px; height: 48px;
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            color: var(--text-muted); cursor: pointer; transition: 0.3s ease; position: relative;
-        }
-        .nav-item:hover, .nav-item.active {
-            color: var(--text-main); background: rgba(255,255,255,0.08);
-        }
-        .nav-item.active::before {
-            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-            height: 24px; width: 4px; background: var(--accent-primary); border-radius: 0 4px 4px 0;
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
+/* TABS */
+.tab-row { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+.tab-row::-webkit-scrollbar { display: none; }
+.tab-btn {
+  padding: 8px 20px; border-radius: 12px; border: 1px solid var(--border);
+  background: var(--card); color: var(--muted); font-size: 13px; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap; font-weight: 500;
+}
+.tab-btn.active {
+  background: var(--blue); color: white; border-color: var(--blue); box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+}
+.tab-btn:hover:not(.active) { background: var(--bg3); color: var(--text); border-color: var(--blue2); }
 
-        /* Main Content */
-        .main-content {
-            padding: 2.5rem 3rem; overflow-y: auto; scroll-behavior: smooth;
-        }
+/* FORMS */
+.fcard { background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:800px; }
+.fcard-hd { font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px; }
 
-        .header {
-            margin-bottom: 2.5rem;
-        }
-        .header h1 {
-            font-size: 2rem; font-weight: 700;
-            background: linear-gradient(to right, #ffffff, #94a3b8);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-        }
-        .header p { color: var(--text-muted); font-size: 1rem; margin-top: 6px; font-weight: 300; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.c-input {
+    width: 100%; background: var(--bg3); border: 1.5px solid var(--border);
+    padding: 12px 14px; border-radius: 10px; color: var(--text);
+    font-size: 13px; font-family: 'DM Sans', sans-serif; transition: all 0.3s; outline: none;
+}
+.c-input:focus { border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+.c-input::placeholder { color: var(--muted); }
+select.c-input { appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 14px top 50%; background-size: 10px auto; padding-right: 30px; }
 
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
-            border-radius: 20px; padding: 1.8rem; margin-bottom: 2rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .glass-card:hover {
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-            border-color: rgba(255,255,255,0.15);
-        }
+.form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
+.btn {
+    padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; font-family: 'DM Sans', sans-serif;
+}
+.btn-primary { background: var(--blue); color: white; }
+.btn-primary:hover { background: var(--blue2); transform: translateY(-1px); }
+.btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--bg4); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        .glass-card h2 {
-            font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem;
-            display: flex; align-items: center; gap: 10px; color: #f8fafc;
-        }
-        .glass-card h2 i { color: var(--accent-primary); }
+/* Alert messages */
+#messages { max-width: 800px; margin-bottom: 20px; }
+.msg-alert { padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; animation: slideDown 0.3s; margin-bottom: 10px; }
+@keyframes slideDown { from {opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);} }
+.msg-alert.success { background: #14532d40; color: #4ade80; border: 1px solid var(--green)30; }
+.msg-alert.error { background: #7f1d1d40; color: #ef4444; border: 1px solid var(--red)30; }
 
-        /* Form Styles */
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--text-main);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: var(--text-main);
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .form-group input::placeholder,
-        .form-group textarea::placeholder {
-            color: var(--text-muted);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .form-actions {
-            display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;
-            padding-top: 2rem; border-top: 1px solid var(--glass-border);
-        }
-
-        .btn {
-            padding: 0.875rem 1.5rem;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-primary), #2563eb);
-            color: white;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-main);
-            border: 1px solid var(--glass-border);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;
-        }
-        .tab-btn {
-            padding: 0.75rem 1.5rem; border-radius: 12px;
-            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
-            color: var(--text-muted); cursor: pointer; transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        .tab-btn.active {
-            background: var(--accent-primary); color: white; border-color: var(--accent-primary);
-        }
-        .tab-btn:hover {
-            background: rgba(255,255,255,0.08); color: var(--text-main);
-        }
-
-        /* Messages */
-        .message {
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-        }
-
-        .message.success {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--success);
-        }
-
-        .message.error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: var(--status-red);
-        }
-
-        /* Loading */
-        .loading {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .loading span {
-            width: 8px;
-            height: 8px;
-            background: currentColor;
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-
-        .loading span:nth-child(1) { animation-delay: -0.32s; }
-        .loading span:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .layout { grid-template-columns: 1fr; }
-            .sidebar { flex-direction: row; height: 70px; padding: 0 1rem; justify-content: space-between; position: fixed; bottom: 0; width: 100%; border-right: none; border-top: 1px solid rgba(255,255,255,0.05); }
-            .sidebar .logo { width: 40px; height: 40px; font-size: 1.2rem; margin:0; }
-            .nav-items { flex-direction: row; flex: unset; gap: 0.5rem; }
-            .nav-item { width: 40px; height: 40px; }
-            .nav-item.active::before { top: 0; left: 50%; width: 20px; height: 4px; transform: translateX(-50%); border-radius: 0 0 4px 4px; }
-            .main-content { padding: 1.5rem; padding-bottom: 100px; }
-            .header h1 { font-size: 1.6rem; }
-            .form-grid { grid-template-columns: 1fr; }
-            .form-actions { flex-direction: column; }
-        }
-    </style>
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .app{grid-template-columns:1fr; grid-template-rows:58px 1fr 64px;}
+  .sidebar{grid-row:3; grid-column:1; border-right:none; border-top:1px solid var(--border); flex-direction:row; padding:0 20px; justify-content:space-between; height:64px; z-index:50;}
+  .sidebar-bottom { display:none;}
+  .logo-icon{display:none;}
+  .nav-btn .tooltip{display:none;}
+  .main{padding: 16px; padding-bottom: 80px;}
+  .form-grid { grid-template-columns: 1fr; }
+  .form-actions { justify-content: stretch; flex-direction: column-reverse; }
+  .form-actions .btn { width: 100%; justify-content: center; }
+}
+</style>
 </head>
 <body>
-    <div class="layout">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <div class="logo" onclick="window.location.href='/dashboard'">
-                <i data-lucide="bus" style="color:white; width: 24px;"></i>
-            </div>
-            <div class="nav-items">
-                <div class="nav-item" title="Dashboard" onclick="window.location.href='/dashboard'">
-                    <i data-lucide="layout-dashboard"></i>
-                </div>
-                <div class="nav-item" title="Stations" onclick="window.location.href='/stations'">
-                    <i data-lucide="map-pin"></i>
-                </div>
-                <div class="nav-item" title="Maintenance" onclick="window.location.href='/maintenance'">
-                    <i data-lucide="wrench"></i>
-                </div>
-                <div class="nav-item active" title="Ajouter Données">
-                    <i data-lucide="plus-circle"></i>
-                </div>
-            </div>
-        </div>
+<div class="app" id="app">
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="header">
-                <h1>Ajouter des Données</h1>
-                <p>Ajoutez de nouvelles données à votre système de transport</p>
-            </div>
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="logo-icon" onclick="window.location.href='/dashboard'"><i data-lucide="bus" size="22" color="white"></i></div>
+    <button class="nav-btn" onclick="window.location.href='/dashboard'"><i data-lucide="layout-dashboard"></i><span class="tooltip">Dashboard</span></button>
+    <button class="nav-btn" onclick="window.location.href='/stations'"><i data-lucide="map-pin"></i><span class="tooltip">Stations</span></button>
+    <button class="nav-btn" onclick="window.location.href='/maintenance'"><i data-lucide="wrench"></i><span class="tooltip">Maintenance</span></button>
+    <button class="nav-btn active" onclick="window.location.href='/add-data'"><i data-lucide="plus-circle"></i><span class="tooltip">Ajouter</span></button>
+    
+    <div class="sidebar-bottom">
+      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="Mode jour/nuit"><i data-lucide="moon"></i></button>
+      <div class="user-av">A</div>
+    </div>
+  </nav>
 
-            <!-- Tabs -->
-            <div class="tabs">
-                <button class="tab-btn active" onclick="showTab('vehicle')">Véhicule</button>
-                <button class="tab-btn" onclick="showTab('driver')">Chauffeur</button>
-                <button class="tab-btn" onclick="showTab('line')">Ligne</button>
-                <button class="tab-btn" onclick="showTab('trip')">Trajet</button>
-                <button class="tab-btn" onclick="showTab('maintenance')">Maintenance</button>
-            </div>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div>
+      <span class="app-name">TranspoBot</span>
+      <span class="app-sub"> — Saisie de données</span>
+    </div>
+    <div class="topbar-right">
+      <div class="live-pill"><div class="dot"></div>Liaison active</div>
+      <button class="icon-btn theme-mobile" style="display:none;" onclick="toggleTheme()"><i data-lucide="moon" id="themeBtnMob"></i></button>
+    </div>
+  </header>
 
-            <!-- Messages -->
-            <div id="messages"></div>
+  <!-- MAIN -->
+  <main class="main">
+    <div class="sec-lbl">Insertion</div>
 
-            <!-- Vehicle Form -->
-            <div id="vehicle-tab" class="tab-content">
-                <div class="glass-card">
-                    <h2><i data-lucide="truck"></i> Ajouter un Véhicule</h2>
-                    <form id="vehicle-form" class="form-grid">
-                        <div class="form-group">
-                            <label for="vehicle-immatriculation">Immatriculation *</label>
-                            <input type="text" id="vehicle-immatriculation" name="immatriculation" placeholder="Ex: DK-1234-AB" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="vehicle-type">Type *</label>
-                            <select id="vehicle-type" name="type" required>
-                                <option value="">Sélectionner un type</option>
-                                <option value="bus">Bus</option>
-                                <option value="minibus">Minibus</option>
-                                <option value="taxi">Taxi</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="vehicle-capacite">Capacité *</label>
-                            <input type="number" id="vehicle-capacite" name="capacite" placeholder="Ex: 60" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="vehicle-kilometrage">Kilométrage</label>
-                            <input type="number" id="vehicle-kilometrage" name="kilometrage" placeholder="Ex: 45000">
-                        </div>
-                        <div class="form-group">
-                            <label for="vehicle-date-acquisition">Date d'acquisition</label>
-                            <input type="date" id="vehicle-date-acquisition" name="date_acquisition">
-                        </div>
-                        <div class="form-group">
-                            <label for="vehicle-statut">Statut</label>
-                            <select id="vehicle-statut" name="statut">
-                                <option value="actif">Actif</option>
-                                <option value="maintenance">Maintenance</option>
-                                <option value="hors_service">Hors service</option>
-                            </select>
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" onclick="resetForm('vehicle-form')">Annuler</button>
-                            <button type="submit" class="btn btn-primary">
-                                <i data-lucide="plus"></i>
-                                Ajouter Véhicule
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Driver Form -->
-            <div id="driver-tab" class="tab-content" style="display: none;">
-                <div class="glass-card">
-                    <h2><i data-lucide="user"></i> Ajouter un Chauffeur</h2>
-                    <form id="driver-form" class="form-grid">
-                        <div class="form-group">
-                            <label for="driver-nom">Nom *</label>
-                            <input type="text" id="driver-nom" name="nom" placeholder="Ex: DIOP" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="driver-prenom">Prénom *</label>
-                            <input type="text" id="driver-prenom" name="prenom" placeholder="Ex: Mamadou" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="driver-telephone">Téléphone</label>
-                            <input type="tel" id="driver-telephone" name="telephone" placeholder="Ex: +221771234567">
-                        </div>
-                        <div class="form-group">
-                            <label for="driver-numero-permis">Numéro de permis *</label>
-                            <input type="text" id="driver-numero-permis" name="numero_permis" placeholder="Ex: P-2019-001" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="driver-categorie-permis">Catégorie de permis</label>
-                            <select id="driver-categorie-permis" name="categorie_permis">
-                                <option value="B">B</option>
-                                <option value="D">D</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="driver-date-embauche">Date d'embauche</label>
-                            <input type="date" id="driver-date-embauche" name="date_embauche">
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" onclick="resetForm('driver-form')">Annuler</button>
-                            <button type="submit" class="btn btn-primary">
-                                <i data-lucide="plus"></i>
-                                Ajouter Chauffeur
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Line Form -->
-            <div id="line-tab" class="tab-content" style="display: none;">
-                <div class="glass-card">
-                    <h2><i data-lucide="route"></i> Ajouter une Ligne</h2>
-                    <form id="line-form" class="form-grid">
-                        <div class="form-group">
-                            <label for="line-code">Code *</label>
-                            <input type="text" id="line-code" name="code" placeholder="Ex: L5" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="line-nom">Nom</label>
-                            <input type="text" id="line-nom" name="nom" placeholder="Ex: Ligne Dakar-Keur Massar">
-                        </div>
-                        <div class="form-group">
-                            <label for="line-origine">Origine *</label>
-                            <input type="text" id="line-origine" name="origine" placeholder="Ex: Dakar" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="line-destination">Destination *</label>
-                            <input type="text" id="line-destination" name="destination" placeholder="Ex: Thiès" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="line-distance">Distance (km)</label>
-                            <input type="number" step="0.1" id="line-distance" name="distance_km" placeholder="Ex: 70.5">
-                        </div>
-                        <div class="form-group">
-                            <label for="line-duree">Durée (minutes)</label>
-                            <input type="number" id="line-duree" name="duree_minutes" placeholder="Ex: 90">
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" onclick="resetForm('line-form')">Annuler</button>
-                            <button type="submit" class="btn btn-primary">
-                                <i data-lucide="plus"></i>
-                                Ajouter Ligne
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Trip Form -->
-            <div id="trip-tab" class="tab-content" style="display: none;">
-                <div class="glass-card">
-                    <h2><i data-lucide="navigation"></i> Ajouter un Trajet</h2>
-                    <form id="trip-form" class="form-grid">
-                        <div class="form-group">
-                            <label for="trip-ligne">Ligne *</label>
-                            <select id="trip-ligne" name="ligne_id" required>
-                                <option value="">Sélectionner une ligne</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="trip-chauffeur">Chauffeur *</label>
-                            <select id="trip-chauffeur" name="chauffeur_id" required>
-                                <option value="">Sélectionner un chauffeur</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="trip-vehicule">Véhicule *</label>
-                            <select id="trip-vehicule" name="vehicule_id" required>
-                                <option value="">Sélectionner un véhicule</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="trip-date-depart">Date et heure de départ *</label>
-                            <input type="datetime-local" id="trip-date-depart" name="date_heure_depart" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="trip-nb-passagers">Nombre de passagers</label>
-                            <input type="number" id="trip-nb-passagers" name="nb_passagers" placeholder="Ex: 45">
-                        </div>
-                        <div class="form-group">
-                            <label for="trip-statut">Statut</label>
-                            <select id="trip-statut" name="statut">
-                                <option value="planifie">Planifié</option>
-                                <option value="en_cours">En cours</option>
-                                <option value="termine">Terminé</option>
-                                <option value="annule">Annulé</option>
-                            </select>
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" onclick="resetForm('trip-form')">Annuler</button>
-                            <button type="submit" class="btn btn-primary">
-                                <i data-lucide="plus"></i>
-                                Ajouter Trajet
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Maintenance Form -->
-            <div id="maintenance-tab" class="tab-content" style="display: none;">
-                <div class="glass-card">
-                    <h2><i data-lucide="wrench"></i> Ajouter une Maintenance</h2>
-                    <form id="maintenance-form" class="form-grid">
-                        <div class="form-group">
-                            <label for="maintenance-vehicule">Véhicule *</label>
-                            <select id="maintenance-vehicule" name="vehicule_id" required>
-                                <option value="">Sélectionner un véhicule</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="maintenance-type">Type de maintenance *</label>
-                            <select id="maintenance-type" name="type_maintenance" required>
-                                <option value="">Sélectionner un type</option>
-                                <option value="revision">Révision</option>
-                                <option value="reparation">Réparation</option>
-                                <option value="controle">Contrôle</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="maintenance-description">Description *</label>
-                            <textarea id="maintenance-description" name="description" placeholder="Description détaillée de la maintenance" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="maintenance-cout">Coût (FCFA)</label>
-                            <input type="number" id="maintenance-cout" name="cout" placeholder="Ex: 150000">
-                        </div>
-                        <div class="form-group">
-                            <label for="maintenance-date-debut">Date de début *</label>
-                            <input type="date" id="maintenance-date-debut" name="date_debut" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="maintenance-date-fin">Date de fin</label>
-                            <input type="date" id="maintenance-date-fin" name="date_fin">
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" onclick="resetForm('maintenance-form')">Annuler</button>
-                            <button type="submit" class="btn btn-primary">
-                                <i data-lucide="plus"></i>
-                                Ajouter Maintenance
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    <!-- TABS -->
+    <div class="tab-row">
+        <button class="tab-btn active" id="btn-tab-vehicle" onclick="showTab('vehicle')"><i data-lucide="truck" size="14" style="vertical-align:bottom; margin-right:4px;"></i> Véhicule</button>
+        <button class="tab-btn" id="btn-tab-driver" onclick="showTab('driver')"><i data-lucide="user" size="14" style="vertical-align:bottom; margin-right:4px;"></i> Chauffeur</button>
+        <button class="tab-btn" id="btn-tab-line" onclick="showTab('line')"><i data-lucide="route" size="14" style="vertical-align:bottom; margin-right:4px;"></i> Ligne</button>
+        <button class="tab-btn" id="btn-tab-trip" onclick="showTab('trip')"><i data-lucide="navigation" size="14" style="vertical-align:bottom; margin-right:4px;"></i> Trajet</button>
+        <button class="tab-btn" id="btn-tab-maint" onclick="showTab('maint')"><i data-lucide="wrench" size="14" style="vertical-align:bottom; margin-right:4px;"></i> Maintenance</button>
     </div>
 
-    <script>
-        lucide.createIcons();
+    <!-- MESSAGES -->
+    <div id="messages"></div>
 
-        // API base URL
-        const API = window.location.origin;
+    <!-- FORM: VEHICLE -->
+    <div id="tab-vehicle" class="view-tab fcard">
+      <div class="fcard-hd"><i data-lucide="truck" color="var(--blue)"></i> Nouveau Véhicule</div>
+      <form id="vehicle-form" onsubmit="submitForm(event, 'vehicles', 'vehicle-form')">
+          <div class="form-grid">
+              <div class="form-group">
+                  <label>Immatriculation *</label>
+                  <input type="text" class="c-input" name="immatriculation" placeholder="Ex: DK-1234-AB" required>
+              </div>
+              <div class="form-group">
+                  <label>Type *</label>
+                  <select class="c-input" name="type" required>
+                      <option value="">Sélectionner</option>
+                      <option value="bus">Bus</option>
+                      <option value="minibus">Minibus</option>
+                      <option value="taxi">Taxi</option>
+                  </select>
+              </div>
+              <div class="form-group">
+                  <label>Capacité *</label>
+                  <input type="number" class="c-input" name="capacite" placeholder="Ex: 60" required>
+              </div>
+              <div class="form-group">
+                  <label>Date Acquisition</label>
+                  <input type="date" class="c-input" name="date_acquisition">
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                  <label>Statut</label>
+                  <select class="c-input" name="statut">
+                      <option value="actif">Actif</option>
+                      <option value="maintenance">Maintenance</option>
+                  </select>
+              </div>
+          </div>
+          <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('vehicle-form').reset()">Réinitialiser</button>
+              <button type="submit" class="btn btn-primary"><i data-lucide="save" size="16"></i> Enregistrer</button>
+          </div>
+      </form>
+    </div>
 
-        // Tab switching
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+    <!-- FORM: DRIVER -->
+    <div id="tab-driver" class="view-tab fcard" style="display:none;">
+      <div class="fcard-hd"><i data-lucide="user" color="var(--blue)"></i> Nouveau Chauffeur</div>
+      <form id="driver-form" onsubmit="submitForm(event, 'drivers', 'driver-form')">
+          <div class="form-grid">
+              <div class="form-group">
+                  <label>Prénom *</label>
+                  <input type="text" class="c-input" name="prenom" placeholder="Prénom" required>
+              </div>
+              <div class="form-group">
+                  <label>Nom *</label>
+                  <input type="text" class="c-input" name="nom" placeholder="Nom" required>
+              </div>
+              <div class="form-group">
+                  <label>Téléphone</label>
+                  <input type="tel" class="c-input" name="telephone" placeholder="+221...">
+              </div>
+              <div class="form-group">
+                  <label>Numéro de permis *</label>
+                  <input type="text" class="c-input" name="numero_permis" placeholder="N° de permis" required>
+              </div>
+              <div class="form-group">
+                  <label>Catégorie</label>
+                  <select class="c-input" name="categorie_permis">
+                      <option value="B">B</option>
+                      <option value="D">D</option>
+                  </select>
+              </div>
+          </div>
+          <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('driver-form').reset()">Réinitialiser</button>
+              <button type="submit" class="btn btn-primary"><i data-lucide="save" size="16"></i> Enregistrer</button>
+          </div>
+      </form>
+    </div>
 
-            document.getElementById(tabName + '-tab').style.display = 'block';
-            event.target.classList.add('active');
+    <!-- FORM: LINE -->
+    <div id="tab-line" class="view-tab fcard" style="display:none;">
+      <div class="fcard-hd"><i data-lucide="route" color="var(--blue)"></i> Nouvelle Ligne</div>
+      <form id="line-form" onsubmit="submitForm(event, 'lines', 'line-form')">
+          <div class="form-grid">
+              <div class="form-group">
+                  <label>Code *</label>
+                  <input type="text" class="c-input" name="code" placeholder="Ex: L1" required>
+              </div>
+              <div class="form-group">
+                  <label>Nom</label>
+                  <input type="text" class="c-input" name="nom" placeholder="Nom de ligne">
+              </div>
+              <div class="form-group">
+                  <label>Origine *</label>
+                  <input type="text" class="c-input" name="origine" required>
+              </div>
+              <div class="form-group">
+                  <label>Destination *</label>
+                  <input type="text" class="c-input" name="destination" required>
+              </div>
+              <div class="form-group">
+                  <label>Distance (km)</label>
+                  <input type="number" step="0.1" class="c-input" name="distance_km">
+              </div>
+          </div>
+          <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('line-form').reset()">Réinitialiser</button>
+              <button type="submit" class="btn btn-primary"><i data-lucide="save" size="16"></i> Enregistrer</button>
+          </div>
+      </form>
+    </div>
+
+    <!-- FORM: TRIP -->
+    <div id="tab-trip" class="view-tab fcard" style="display:none;">
+      <div class="fcard-hd"><i data-lucide="navigation" color="var(--blue)"></i> Nouveau Trajet</div>
+      <form id="trip-form" onsubmit="submitForm(event, 'trips', 'trip-form')">
+          <div class="form-grid">
+              <div class="form-group">
+                  <label>Ligne *</label>
+                  <select class="c-input" id="sel-lignes" name="ligne_id" required><option value="">Chargement...</option></select>
+              </div>
+              <div class="form-group">
+                  <label>Chauffeur *</label>
+                  <select class="c-input" id="sel-chauffeurs" name="chauffeur_id" required><option value="">Chargement...</option></select>
+              </div>
+              <div class="form-group">
+                  <label>Véhicule *</label>
+                  <select class="c-input" id="sel-vehicules" name="vehicule_id" required><option value="">Chargement...</option></select>
+              </div>
+              <div class="form-group">
+                  <label>Heure de départ *</label>
+                  <input type="datetime-local" class="c-input" name="date_heure_depart" required>
+              </div>
+              <div class="form-group">
+                  <label>Statut</label>
+                  <select class="c-input" name="statut">
+                      <option value="planifie">Planifié</option>
+                      <option value="en_cours">En cours</option>
+                      <option value="termine">Terminé</option>
+                  </select>
+              </div>
+          </div>
+          <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('trip-form').reset()">Réinitialiser</button>
+              <button type="submit" class="btn btn-primary"><i data-lucide="save" size="16"></i> Enregistrer</button>
+          </div>
+      </form>
+    </div>
+
+    <!-- FORM: MAINTENANCE -->
+    <div id="tab-maint" class="view-tab fcard" style="display:none;">
+      <div class="fcard-hd"><i data-lucide="wrench" color="var(--blue)"></i> Nouvelle Maintenance</div>
+      <form id="maintenance-form" onsubmit="submitForm(event, 'maintenance', 'maintenance-form')">
+          <div class="form-grid">
+              <div class="form-group">
+                  <label>Véhicule *</label>
+                  <select class="c-input" id="sel-vehicules-m" name="vehicule_id" required><option value="">Chargement...</option></select>
+              </div>
+              <div class="form-group">
+                  <label>Type *</label>
+                  <select class="c-input" name="type_maintenance" required>
+                      <option value="revision">Révision</option>
+                      <option value="reparation">Réparation</option>
+                      <option value="controle">Contrôle</option>
+                  </select>
+              </div>
+              <div class="form-group">
+                  <label>Coût (FCFA)</label>
+                  <input type="number" class="c-input" name="cout">
+              </div>
+              <div class="form-group">
+                  <label>Date Début *</label>
+                  <input type="date" class="c-input" name="date_debut" required>
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                  <label>Description *</label>
+                  <textarea class="c-input" name="description" rows="3" required></textarea>
+              </div>
+          </div>
+          <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('maintenance-form').reset()">Réinitialiser</button>
+              <button type="submit" class="btn btn-primary"><i data-lucide="save" size="16"></i> Enregistrer</button>
+          </div>
+      </form>
+    </div>
+
+  </main>
+</div>
+
+<script>
+lucide.createIcons();
+const API = window.location.origin + "/";
+
+// Theme Logic
+let isLight = false;
+if (localStorage.getItem('theme') === 'light') toggleTheme(true);
+
+function toggleTheme(forceLight = null) {
+  isLight = forceLight !== null ? forceLight : !isLight;
+  document.documentElement.classList.toggle('light', isLight);
+  
+  const mIcon = document.querySelector('#themeBtn i');
+  if(mIcon) {
+     const newIco = document.createElement('i');
+     newIco.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+     mIcon.replaceWith(newIco);
+  }
+  const mobIco = document.querySelector('#themeBtnMob');
+  if(mobIco) mobIco.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+  lucide.createIcons();
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+if(window.innerWidth <= 768){
+   document.querySelector('.theme-mobile').style.display = 'flex';
+}
+
+// Tab Logic
+function showTab(tabName) {
+  document.querySelectorAll('.view-tab').forEach(tab => tab.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('tab-' + tabName).style.display = 'block';
+  document.getElementById('btn-tab-' + tabName).classList.add('active');
+}
+
+// Alerts
+function showMsg(type, text) {
+    const box = document.getElementById('messages');
+    const msg = document.createElement('div');
+    msg.className = `msg-alert ${type}`;
+    msg.innerHTML = `<i data-lucide="${type==='success' ? 'check-circle' : 'alert-circle'}" size="18"></i> ${text}`;
+    box.appendChild(msg);
+    lucide.createIcons();
+    setTimeout(() => msg.remove(), 5000);
+}
+
+// Data loaders for selects
+async function loadSelects() {
+    try {
+        const [linesRes, drvRes, vehRes] = await Promise.all([
+            fetch(`${API}api/lines`), fetch(`${API}api/drivers`), fetch(`${API}api/vehicles`)
+        ]);
+        
+        if(linesRes.ok) {
+            const lines = await linesRes.json();
+            document.getElementById('sel-lignes').innerHTML = '<option value="">Sélectionner</option>' + 
+                lines.map(l => `<option value="${l.id}">${l.code} - ${l.origine} > ${l.destination}</option>`).join('');
         }
-
-        // Show message
-        function showMessage(type, text) {
-            const messages = document.getElementById('messages');
-            const message = document.createElement('div');
-            message.className = `message ${type}`;
-            message.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}"></i> ${text}`;
-            messages.appendChild(message);
-            lucide.createIcons();
-
-            setTimeout(() => {
-                message.remove();
-            }, 5000);
+        
+        if(drvRes.ok) {
+            const drvs = await drvRes.json();
+            document.getElementById('sel-chauffeurs').innerHTML = '<option value="">Sélectionner</option>' + 
+                drvs.map(d => `<option value="${d.id}">${d.prenom} ${d.nom}</option>`).join('');
         }
+        
+        if(vehRes.ok) {
+            const vehs = await vehRes.json();
+            const vHtml = '<option value="">Sélectionner</option>' + 
+                vehs.map(v => `<option value="${v.id}">${v.immatriculation} (${v.type})</option>`).join('');
+            document.getElementById('sel-vehicules').innerHTML = vHtml;
+            document.getElementById('sel-vehicules-m').innerHTML = vHtml;
+        }
+    } catch(e) {
+        showMsg('error', 'Erreur lors du chargement des options des formulaires.');
+    }
+}
 
-        // Reset form
-        function resetForm(formId) {
+// Form Submission
+async function submitForm(e, endpoint, formId) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const ogHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span style="font-size:12px">Enregistrement...</span>`;
+    
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        const res = await fetch(`${API}api/${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        if(res.ok) {
+            showMsg('success', 'Ajour effectué avec succès !');
             document.getElementById(formId).reset();
+            if(endpoint !== 'trips' && endpoint !== 'maintenance') loadSelects(); // reload selects if we added new dependencies
+        } else {
+            const err = await res.json();
+            showMsg('error', err.detail || 'Erreur lors de l\'ajout.');
         }
+    } catch(err) {
+        showMsg('error', 'Erreur réseau.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = ogHtml;
+        lucide.createIcons();
+    }
+}
 
-        // Load select options
-        async function loadSelectOptions() {
-            try {
-                // Load lines
-                const linesRes = await fetch(`${API}/api/lines`);
-                const lines = await linesRes.json();
-                const lineSelects = ['trip-ligne'];
-                lineSelects.forEach(id => {
-                    const select = document.getElementById(id);
-                    lines.forEach(line => {
-                        const option = document.createElement('option');
-                        option.value = line.id;
-                        option.textContent = `${line.code} - ${line.nom || line.origine + ' → ' + line.destination}`;
-                        select.appendChild(option);
-                    });
-                });
-
-                // Load drivers
-                const driversRes = await fetch(`${API}/api/drivers`);
-                const drivers = await driversRes.json();
-                const driverSelects = ['trip-chauffeur'];
-                driverSelects.forEach(id => {
-                    const select = document.getElementById(id);
-                    drivers.forEach(driver => {
-                        const option = document.createElement('option');
-                        option.value = driver.id;
-                        option.textContent = `${driver.prenom} ${driver.nom}`;
-                        select.appendChild(option);
-                    });
-                });
-
-                // Load vehicles
-                const vehiclesRes = await fetch(`${API}/api/vehicles`);
-                const vehicles = await vehiclesRes.json();
-                const vehicleSelects = ['trip-vehicule', 'maintenance-vehicule'];
-                vehicleSelects.forEach(id => {
-                    const select = document.getElementById(id);
-                    vehicles.forEach(vehicle => {
-                        const option = document.createElement('option');
-                        option.value = vehicle.id;
-                        option.textContent = `${vehicle.immatriculation} (${vehicle.type})`;
-                        select.appendChild(option);
-                    });
-                });
-
-            } catch (error) {
-                console.error('Error loading select options:', error);
-            }
-        }
-
-        // Form submissions
-        document.getElementById('vehicle-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div> Ajout...';
-
-            try {
-                const response = await fetch(`${API}/api/vehicles`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    showMessage('success', 'Véhicule ajouté avec succès !');
-                    resetForm('vehicle-form');
-                } else {
-                    const error = await response.json();
-                    showMessage('error', error.detail || 'Erreur lors de l\'ajout du véhicule');
-                }
-            } catch (error) {
-                showMessage('error', 'Erreur réseau. Veuillez réessayer.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                lucide.createIcons();
-            }
-        });
-
-        document.getElementById('driver-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div> Ajout...';
-
-            try {
-                const response = await fetch(`${API}/api/drivers`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    showMessage('success', 'Chauffeur ajouté avec succès !');
-                    resetForm('driver-form');
-                } else {
-                    const error = await response.json();
-                    showMessage('error', error.detail || 'Erreur lors de l\'ajout du chauffeur');
-                }
-            } catch (error) {
-                showMessage('error', 'Erreur réseau. Veuillez réessayer.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                lucide.createIcons();
-            }
-        });
-
-        document.getElementById('line-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div> Ajout...';
-
-            try {
-                const response = await fetch(`${API}/api/lines`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    showMessage('success', 'Ligne ajoutée avec succès !');
-                    resetForm('line-form');
-                } else {
-                    const error = await response.json();
-                    showMessage('error', error.detail || 'Erreur lors de l\'ajout de la ligne');
-                }
-            } catch (error) {
-                showMessage('error', 'Erreur réseau. Veuillez réessayer.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                lucide.createIcons();
-            }
-        });
-
-        document.getElementById('trip-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div> Ajout...';
-
-            try {
-                const response = await fetch(`${API}/api/trips`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    showMessage('success', 'Trajet ajouté avec succès !');
-                    resetForm('trip-form');
-                } else {
-                    const error = await response.json();
-                    showMessage('error', error.detail || 'Erreur lors de l\'ajout du trajet');
-                }
-            } catch (error) {
-                showMessage('error', 'Erreur réseau. Veuillez réessayer.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                lucide.createIcons();
-            }
-        });
-
-        document.getElementById('maintenance-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div> Ajout...';
-
-            try {
-                const response = await fetch(`${API}/api/maintenance`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    showMessage('success', 'Maintenance ajoutée avec succès !');
-                    resetForm('maintenance-form');
-                } else {
-                    const error = await response.json();
-                    showMessage('error', error.detail || 'Erreur lors de l\'ajout de la maintenance');
-                }
-            } catch (error) {
-                showMessage('error', 'Erreur réseau. Veuillez réessayer.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                lucide.createIcons();
-            }
-        });
-
-        // Initialize
-        document.addEventListener("DOMContentLoaded", () => {
-            loadSelectOptions();
-        });
-    </script>
+document.addEventListener("DOMContentLoaded", loadSelects);
+</script>
 </body>
 </html>

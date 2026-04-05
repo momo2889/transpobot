@@ -27,6 +27,8 @@ Regles IMPORTANTES :
 {"sql": "SELECT ...", "explication": "Voici les resultats..."}
 4. Si pas besoin de SQL :
 {"sql": null, "explication": "Ta reponse ici"}
+5. Si un utilisateur demande le "chiffre d'affaire" ou les "recettes", il s'agit de la colonne `recette` dans la table `trajets`. Exemple total: SELECT SUM(recette) FROM trajets;
+6. Pour filtrer sur le "mois", ou "ajourd'hui", utilise bien les fonctions SQL (ex: MONTH(date_heure_depart) = MONTH(CURRENT_DATE))
 """
 
 def ask_bot(question):

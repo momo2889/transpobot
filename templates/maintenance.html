@@ -1,399 +1,299 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance - TranspoBot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --bg-gradient: linear-gradient(135deg, #020617 0%, #0f172a 100%);
-            --glass-bg: rgba(30, 41, 59, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            --accent-primary: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.4);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --status-green: #10b981;
-            --status-orange: #f59e0b;
-            --status-red: #ef4444;
-        }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TranspoBot — Maintenance</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0B0F1A;--bg2:#111827;--bg3:#1a2235;--bg4:#0d1526;
+  --blue:#2563EB;--blue2:#3B82F6;--accent:#38BDF8;
+  --green:#22C55E;--orange:#F59E0B;--red:#EF4444;
+  --text:#F1F5F9;--muted:#64748B;--border:#1E293B;--card:#141D2E;
+  --radius:14px;
+}
+.light{
+  --bg:#F0F4FA;--bg2:#FFFFFF;--bg3:#E8EEF8;--bg4:#F8FAFF;
+  --blue:#2563EB;--blue2:#3B82F6;--accent:#0284C7;
+  --green:#16A34A;--orange:#D97706;--red:#DC2626;
+  --text:#0F172A;--muted:#64748B;--border:#CBD5E1;--card:#FFFFFF;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ===== LAYOUT ===== */
+.app{display:grid;grid-template-columns:64px 1fr;grid-template-rows:58px 1fr;height:100vh;overflow:hidden;}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-main);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
+/* ===== SIDEBAR ===== */
+.sidebar{
+  grid-row:1/3;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;
+  transition:background .3s;z-index:20;
+}
+.logo-icon{width:40px;height:40px;background:var(--blue);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;flex-shrink:0;cursor:pointer;}
+.nav-btn{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:var(--muted);border:none;background:none;transition:all .2s;position:relative;}
+.nav-btn:hover{background:var(--bg3);color:var(--blue2);}
+.nav-btn.active{background:var(--bg3);color:var(--blue2);box-shadow:0 0 0 1.5px var(--blue2)40;}
+.nav-btn .tooltip{position:absolute;left:52px;background:#1e293b;color:#f1f5f9;font-size:11px;padding:4px 10px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;}
+.nav-btn:hover .tooltip{opacity:1;}
+.sidebar-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.theme-toggle{width:40px;height:40px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.theme-toggle:hover{background:var(--blue);border-color:var(--blue);color:white;}
+.user-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#38BDF8);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:white;}
 
-        /* Ambient background blobs */
-        body::before, body::after {
-            content: '';
-            position: absolute;
-            border-radius: 50%;
-            z-index: 0;
-            pointer-events: none;
-        }
-        body::before {
-            top: -150px; left: -150px;
-            width: 500px; height: 500px;
-            background: var(--accent-primary);
-            filter: blur(150px); opacity: 0.15;
-        }
-        body::after {
-            bottom: -150px; right: -150px;
-            width: 600px; height: 600px;
-            background: #8b5cf6;
-            filter: blur(200px); opacity: 0.12;
-        }
+/* ===== TOPBAR ===== */
+.topbar{
+  grid-column:2;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 22px;gap:16px;transition:background .3s;
+}
+.app-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px;}
+.app-sub{font-size:11px;color:var(--muted);margin-left:2px;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.live-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);background:var(--bg3);padding:5px 12px;border-radius:999px;border:1px solid var(--green)40;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.icon-btn{width:36px;height:36px;border-radius:9px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;}
 
-        .layout {
-            display: grid;
-            grid-template-columns: 80px 1fr;
-            width: 100%; height: 100vh;
-            position: relative; z-index: 1;
-        }
+/* ===== MAIN CONTENT ===== */
+.main{grid-column:2;display:flex;flex-direction:column;overflow-y:auto;padding:24px;padding-bottom:100px;scroll-behavior:smooth;}
+.sec-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);font-weight:600;margin-bottom:12px;}
 
-        /* Sidebar Navigation */
-        .sidebar {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid var(--glass-border);
-            display: flex; flex-direction: column; align-items: center; padding: 2rem 0; gap: 2rem;
-            z-index: 10;
-        }
-        .sidebar .logo {
-            width: 48px; height: 48px;
-            background: linear-gradient(135deg, var(--accent-primary), #8b5cf6);
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 20px var(--accent-glow);
-            font-size: 1.5rem;
-            color: white;
-            cursor: pointer;
-        }
-        .nav-items { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
-        .nav-item {
-            width: 48px; height: 48px;
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            color: var(--text-muted); cursor: pointer; transition: 0.3s ease; position: relative;
-        }
-        .nav-item:hover, .nav-item.active {
-            color: var(--text-main); background: rgba(255,255,255,0.08);
-        }
-        .nav-item.active::before {
-            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-            height: 24px; width: 4px; background: var(--accent-primary); border-radius: 0 4px 4px 0;
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
+/* MAINTENANCE GRID */
+.maint-summary{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:14px; margin-bottom:24px;}
+.msum{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center; transition:transform 0.2s;}
+.msum:hover{transform:translateY(-2px);}
+.msum-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800; min-height: 32px;}
+.msum-lbl{font-size:12px;color:var(--muted);margin-top:4px; font-weight: 500;}
 
-        /* Main Content */
-        .main-content {
-            padding: 2.5rem 3rem; overflow-y: auto; scroll-behavior: smooth;
-        }
+.maint-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));gap:16px;}
+.mcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color .2s; animation: fadeIn 0.4s ease forwards;}
+.mcard:hover{border-color:var(--orange)50;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 
-        .header {
-            margin-bottom: 2.5rem;
-        }
-        .header h1 {
-            font-size: 2rem; font-weight: 700;
-            background: linear-gradient(to right, #ffffff, #94a3b8);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-        }
-        .header p { color: var(--text-muted); font-size: 1rem; margin-top: 6px; font-weight: 300; }
+.mcard-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.vico{width:46px;height:46px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue);}
+.vname{font-weight:600;font-size:14px;line-height:1.3; font-family:'Syne',sans-serif;}
+.vplate{font-size:11px;color:var(--muted);background:var(--bg3);border:1px solid var(--border);padding:2px 8px;border-radius:6px;margin-top:4px;display:inline-block;letter-spacing:.5px;font-family:monospace;}
+.msev{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 10px;border-radius:999px;font-weight:600;margin-left:auto;flex-shrink:0;}
+.msev.high{background:#7f1d1d40;color:var(--red);border:1px solid var(--red)30;}
+.msev.med{background:#78350f40;color:var(--orange);border:1px solid var(--orange)30;}
+.msev.low{background:#14532d40;color:var(--green);border:1px solid var(--green)30;}
 
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
-            border-radius: 20px; padding: 1.8rem; margin-bottom: 2rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .glass-card:hover {
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-            border-color: rgba(255,255,255,0.15);
-        }
+.mrow{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-top:1px solid var(--border)50;}
+.mk{color:var(--muted);} .mv{font-weight:500;}
+.mv.warn{color:var(--orange);} .mv.ok{color:var(--green);} .mv.crit{color:var(--red);}
 
-        .glass-card h2 {
-            font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem;
-            display: flex; align-items: center; gap: 10px; color: #f8fafc;
-        }
-        .glass-card h2 i { color: var(--accent-primary); }
+.mbar-wrap{margin-top:14px;}
+.mbar-info{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:500;}
+.mbar{height:6px;background:var(--bg3);border-radius:999px;overflow:hidden;}
+.mbar-fill{height:100%;border-radius:999px;}
 
-        /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
-        .stat-card {
-            background: rgba(255,255,255,0.02); border-radius: 14px; padding: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; position: relative; overflow: hidden;
-            transition: 0.3s ease; cursor: default;
-        }
-        .stat-card:hover { background: rgba(255,255,255,0.05); transform: translateY(-3px); }
-        .stat-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--accent-primary); border-radius: 4px 0 0 4px;
-            box-shadow: 0 0 12px var(--accent-glow);
-        }
-        .stat-card .val { font-size: 2.2rem; font-weight: 700; color: #fff; margin-bottom: 5px; line-height: 1; }
-        .stat-card .lbl { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.loading-skeleton {
+    background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
+    background-size: 400% 100%; animation: loading 1.5s infinite; border-radius: 4px; color: transparent !important;
+}
 
-        /* Table Styles */
-        .table-container { overflow-x: auto; margin: -0.5rem; padding: 0.5rem; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        th {
-            text-align: left; padding: 1.2rem 1rem; font-size: 0.8rem; text-transform: uppercase;
-            letter-spacing: 0.08em; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.1);
-            font-weight: 600;
-        }
-        td {
-            padding: 1.2rem 1rem; font-size: 0.95rem; color: #e2e8f0;
-            border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle;
-        }
-        tr { transition: background 0.2s ease; }
-        tr:hover td { background: rgba(255,255,255,0.03); }
-        tr:last-child td { border-bottom: none; }
-
-        .badge {
-            padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px; letter-spacing: 0.3px; width: fit-content;
-        }
-        .badge-termine { background: rgba(16, 185, 129, 0.15); color: var(--status-green); border: 1px solid rgba(16,185,129,0.3); }
-        .badge-en_cours { background: rgba(245, 158, 11, 0.15); color: var(--status-orange); border: 1px solid rgba(245,158,11,0.3); }
-
-        .maintenance-type {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;
-        }
-        .type-revision { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
-        .type-reparation { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
-        .type-controle { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
-
-        /* Loading skeleton */
-        .loading-skeleton {
-            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-            background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 4px; color: transparent !important;
-        }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .layout { grid-template-columns: 1fr; }
-            .sidebar { flex-direction: row; height: 70px; padding: 0 1rem; justify-content: space-between; position: fixed; bottom: 0; width: 100%; border-right: none; border-top: 1px solid rgba(255,255,255,0.05); }
-            .sidebar .logo { width: 40px; height: 40px; font-size: 1.2rem; margin:0; }
-            .nav-items { flex-direction: row; flex: unset; gap: 0.5rem; }
-            .nav-item { width: 40px; height: 40px; }
-            .nav-item.active::before { top: 0; left: 50%; width: 20px; height: 4px; transform: translateX(-50%); border-radius: 0 0 4px 4px; }
-            .main-content { padding: 1.5rem; padding-bottom: 100px; }
-            .header h1 { font-size: 1.6rem; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-        }
-    </style>
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .app{grid-template-columns:1fr; grid-template-rows:58px 1fr 64px;}
+  .sidebar{grid-row:3; grid-column:1; border-right:none; border-top:1px solid var(--border); flex-direction:row; padding:0 20px; justify-content:space-between; height:64px; z-index:50;}
+  .sidebar-bottom { display:none;}
+  .logo-icon{display:none;}
+  .nav-btn .tooltip{display:none;}
+  .main{padding: 16px; padding-bottom: 80px;}
+  .maint-summary { grid-template-columns: repeat(2, 1fr); }
+  .maint-grid { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
-    <div class="layout">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <div class="logo" onclick="window.location.href='/dashboard'">
-                <i data-lucide="bus" style="color:white; width: 24px;"></i>
-            </div>
-            <div class="nav-items">
-                <div class="nav-item" title="Dashboard" onclick="window.location.href='/dashboard'">
-                    <i data-lucide="layout-dashboard"></i>
-                </div>
-                <div class="nav-item" title="Stations" onclick="window.location.href='/stations'">
-                    <i data-lucide="map-pin"></i>
-                </div>
-                <div class="nav-item active" title="Maintenance">
-                    <i data-lucide="wrench"></i>
-                </div>
-                <div class="nav-item" title="Ajouter Données" onclick="window.location.href='/add-data'">
-                    <i data-lucide="plus-circle"></i>
-                </div>
-            </div>
-        </div>
+<div class="app" id="app">
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="header">
-                <h1>Maintenance</h1>
-                <p>Supervision des opérations de maintenance et réparations</p>
-            </div>
-
-            <!-- Maintenance Stats -->
-            <div class="glass-card">
-                <h2><i data-lucide="activity"></i> Statistiques de Maintenance</h2>
-                <div class="stats-grid" id="maintenance-stats">
-                    <div class="stat-card">
-                        <div class="val loading-skeleton" id="stat-total">000</div>
-                        <div class="lbl">Total Interventions</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="val loading-skeleton" id="stat-en-cours">000</div>
-                        <div class="lbl">En Cours</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="val loading-skeleton" id="stat-cout">000</div>
-                        <div class="lbl">Coût Total (FCFA)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="val loading-skeleton" id="stat-moyen">000</div>
-                        <div class="lbl">Coût Moyen</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Maintenance Table -->
-            <div class="glass-card">
-                <h2 style="display: flex; justify-content: space-between; align-items: center; width:100%">
-                    <span style="display: flex; align-items: center; gap: 10px;"><i data-lucide="wrench"></i> Historique de Maintenance</span>
-                    <i data-lucide="refresh-cw" size="18" style="cursor: pointer; color: var(--text-muted); transition: 0.3s;" onclick="refreshMaintenance(this)" title="Actualiser"></i>
-                </h2>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Véhicule</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                                <th>Coût</th>
-                                <th>Date Début</th>
-                                <th>Date Fin</th>
-                                <th>Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody id="maintenance-body">
-                            <tr><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="logo-icon" onclick="window.location.href='/dashboard'"><i data-lucide="bus" size="22" color="white"></i></div>
+    <button class="nav-btn" onclick="window.location.href='/dashboard'"><i data-lucide="layout-dashboard"></i><span class="tooltip">Dashboard</span></button>
+    <button class="nav-btn" onclick="window.location.href='/stations'"><i data-lucide="map-pin"></i><span class="tooltip">Stations</span></button>
+    <button class="nav-btn active" onclick="window.location.href='/maintenance'"><i data-lucide="wrench"></i><span class="tooltip">Maintenance</span></button>
+    <button class="nav-btn" onclick="window.location.href='/add-data'"><i data-lucide="plus-circle"></i><span class="tooltip">Ajouter</span></button>
+    
+    <div class="sidebar-bottom">
+      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="Mode jour/nuit"><i data-lucide="moon"></i></button>
+      <div class="user-av">A</div>
     </div>
+  </nav>
 
-    <script>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div>
+      <span class="app-name">TranspoBot</span>
+      <span class="app-sub"> — Suivi d'entretien</span>
+    </div>
+    <div class="topbar-right">
+      <div class="live-pill"><div class="dot"></div>Liaison active</div>
+      <button class="icon-btn theme-mobile" style="display:none;" onclick="toggleTheme()"><i data-lucide="moon" id="themeBtnMob"></i></button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+       <div class="sec-lbl" style="margin-bottom:0;">Parc en maintenance</div>
+       <button class="icon-btn" onclick="fetchMaintenance()" title="Actualiser"><i data-lucide="refresh-cw" size="14"></i></button>
+    </div>
+    
+    <div class="maint-summary">
+      <div class="msum"><div class="msum-val" id="sum-total">--</div><div class="msum-lbl">Au Garage</div></div>
+      <div class="msum"><div class="msum-val" id="sum-crit" style="color:var(--red)">--</div><div class="msum-lbl">Réparations</div></div>
+      <div class="msum"><div class="msum-val" id="sum-mod" style="color:var(--orange)">--</div><div class="msum-lbl">Révisions</div></div>
+      <div class="msum"><div class="msum-val" id="sum-cost" style="color:var(--green)">--</div><div class="msum-lbl">Coût Total (FCFA)</div></div>
+    </div>
+    
+    <div class="maint-grid" id="maint-grid">
+       <!-- Skeletons -->
+       <div class="mcard"><div class="vname loading-skeleton" style="width:50%;height:14px;"></div><br><div class="loading-skeleton" style="width:100%;height:100px;"></div></div>
+       <div class="mcard"><div class="vname loading-skeleton" style="width:50%;height:14px;"></div><br><div class="loading-skeleton" style="width:100%;height:100px;"></div></div>
+       <div class="mcard"><div class="vname loading-skeleton" style="width:50%;height:14px;"></div><br><div class="loading-skeleton" style="width:100%;height:100px;"></div></div>
+    </div>
+  </main>
+</div>
+
+<script>
+lucide.createIcons();
+const API = window.location.origin + "/";
+
+// Theme Logic
+let isLight = false;
+if (localStorage.getItem('theme') === 'light') toggleTheme(true);
+
+function toggleTheme(forceLight = null) {
+  isLight = forceLight !== null ? forceLight : !isLight;
+  document.documentElement.classList.toggle('light', isLight);
+  
+  const mIcon = document.querySelector('#themeBtn i');
+  if(mIcon) {
+     const newIco = document.createElement('i');
+     newIco.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+     mIcon.replaceWith(newIco);
+  }
+  const mobIco = document.querySelector('#themeBtnMob');
+  if(mobIco) mobIco.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+  lucide.createIcons();
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+if(window.innerWidth <= 768){
+   document.querySelector('.theme-mobile').style.display = 'flex';
+}
+
+function formatDate(ds) {
+    if(!ds) return 'Indéfini';
+    return new Date(ds).toLocaleDateString('fr-FR');
+}
+function formatMoney(amount) {
+    if (!amount) return '0';
+    return new Intl.NumberFormat('fr-FR').format(amount);
+}
+
+// Procedural visual generation based on data
+function getSeverity(typeStr) {
+    if(typeStr === 'reparation') return {cls:'high', lbl:'● Réparation', color:'var(--red)'};
+    if(typeStr === 'revision') return {cls:'med', lbl:'● Révision', color:'var(--orange)'};
+    return {cls:'low', lbl:'● Contrôle', color:'var(--green)'};
+}
+
+function calculateProgress(dateDebut, dateFin, statut) {
+    if(statut === 'termine') return 100;
+    if(!dateDebut || !dateFin) return 40; // fake progress if no end date
+    
+    const start = new Date(dateDebut).getTime();
+    const end = new Date(dateFin).getTime();
+    const today = new Date().getTime();
+    
+    if(today > end) return 99; // almost done
+    if(today < start) return 0;
+    
+    const total = end - start;
+    const elapsed = today - start;
+    return Math.floor((elapsed / total) * 100);
+}
+
+async function fetchMaintenance() {
+    const grid = document.getElementById('maint-grid');
+    try {
+        const res = await fetch(`${API}api/maintenance`);
+        if(!res.ok) throw new Error("API Error");
+        const data = await res.json();
+        
+        let repCount = 0;
+        let revCount = 0;
+        let tCost = 0;
+        
+        if(!data || data.length === 0) {
+            grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--muted);width:100%;">Vide. Aucun véhicule en maintenance.</div>`;
+            document.getElementById('sum-total').textContent = 0;
+            document.getElementById('sum-crit').textContent = 0;
+            document.getElementById('sum-mod').textContent = 0;
+            document.getElementById('sum-cost').textContent = 0;
+            return;
+        }
+
+        grid.innerHTML = data.map((m, index) => {
+            const isDone = m.statut === 'termine';
+            if(!isDone) {
+                if(m.type_maintenance === 'reparation') repCount++;
+                if(m.type_maintenance === 'revision') revCount++;
+            }
+            if(m.cout) tCost += parseFloat(m.cout);
+
+            const sev = getSeverity(m.type_maintenance);
+            const progress = calculateProgress(m.date_debut, m.date_fin, m.statut);
+            
+            // if completed, style differently
+            if(isDone) {
+                sev.cls = 'low'; sev.lbl = '● Terminé'; sev.color = 'var(--green)';
+            }
+
+            return `
+            <div class="mcard" style="animation-delay:${index*0.05}s">
+                <div class="mcard-top">
+                  <div class="vico"><i data-lucide="wrench"></i></div>
+                  <div>
+                      <div class="vname">Réf: #${m.id || 'N/A'}</div>
+                      <span class="vplate">${m.immatriculation || 'Inconnu'}</span>
+                  </div>
+                  <span class="msev ${sev.cls}">${sev.lbl}</span>
+                </div>
+                <div class="mrow"><span class="mk">Diagnostic</span><span class="mv">${m.description || '—'}</span></div>
+                <div class="mrow"><span class="mk">Date d'entrée</span><span class="mv">${formatDate(m.date_debut)}</span></div>
+                <div class="mrow"><span class="mk">${isDone ? 'Date sortie' : 'Sortie estimée'}</span><span class="mv ${isDone ? 'ok' : 'warn'}">${formatDate(m.date_fin)}</span></div>
+                <div class="mrow"><span class="mk">Coût</span><span class="mv">${formatMoney(m.cout)} FCFA</span></div>
+                <div class="mbar-wrap">
+                  <div class="mbar-info"><span>${isDone ? 'Terminé' : 'Progression estimée'}</span><span>${progress}%</span></div>
+                  <div class="mbar"><div class="mbar-fill" style="width:${progress}%; background:${sev.color}"></div></div>
+                </div>
+            </div>`;
+        }).join('');
+        
         lucide.createIcons();
+        
+        const activeMaint = data.filter(d => d.statut !== 'termine').length;
+        document.getElementById('sum-total').textContent = activeMaint;
+        document.getElementById('sum-crit').textContent = repCount;
+        document.getElementById('sum-mod').textContent = revCount;
+        document.getElementById('sum-cost').textContent = formatMoney(tCost);
 
-        // API base URL
-        const API = window.location.origin;
+    } catch (e) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--red);width:100%;">Erreur de chargement des maintenances.</div>`;
+    }
+}
 
-        // Format currency
-        function formatCurrency(amount) {
-            if (!amount) return '0 FCFA';
-            return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
-        }
-
-        // Format date
-        function formatDate(dateString) {
-            if (!dateString) return 'Non défini';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('fr-FR');
-        }
-
-        // Update stat
-        function updateStat(id, val) {
-            const el = document.getElementById(id);
-            el.classList.remove('loading-skeleton');
-            el.textContent = val;
-            el.style.transform = 'scale(1.1)';
-            setTimeout(() => el.style.transform = 'scale(1)', 200);
-        }
-
-        // Fetch maintenance stats
-        async function fetchMaintenanceStats() {
-            try {
-                const res = await fetch(`${API}/api/maintenance`);
-                if(!res.ok) throw new Error("API Error");
-                const data = await res.json();
-
-                const total = data.length;
-                const enCours = data.filter(m => m.statut === 'en_cours').length;
-                const totalCout = data.reduce((sum, m) => sum + (m.cout || 0), 0);
-                const coutMoyen = total > 0 ? Math.round(totalCout / total) : 0;
-
-                updateStat('stat-total', total);
-                updateStat('stat-en-cours', enCours);
-                updateStat('stat-cout', formatCurrency(totalCout));
-                updateStat('stat-moyen', formatCurrency(coutMoyen));
-
-            } catch (e) {
-                console.error(e);
-                updateStat('stat-total', 'N/A');
-                updateStat('stat-en-cours', 'N/A');
-                updateStat('stat-cout', 'N/A');
-                updateStat('stat-moyen', 'N/A');
-            }
-        }
-
-        // Fetch maintenance data
-        async function fetchMaintenance() {
-            const tbody = document.getElementById('maintenance-body');
-            try {
-                const res = await fetch(`${API}/api/maintenance`);
-                if(!res.ok) throw new Error("API Error");
-                const data = await res.json();
-
-                if(!data || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Aucune maintenance trouvée.</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = data.map((m, index) => {
-                    let badgeClass = 'badge-termine';
-                    let iconName = 'check-circle-2';
-                    let statutStr = m.statut ? m.statut.replace('_', ' ').toUpperCase() : 'INCONNU';
-
-                    if(m.statut === 'en_cours') {
-                        badgeClass = 'badge-en_cours';
-                        iconName = 'loader';
-                    }
-
-                    let typeClass = 'type-revision';
-                    if(m.type_maintenance === 'reparation') typeClass = 'type-reparation';
-                    else if(m.type_maintenance === 'controle') typeClass = 'type-controle';
-
-                    return `
-                    <tr style="animation: floatIn 0.3s ease forwards; animation-delay: ${index * 0.05}s; opacity: 0;">
-                        <td><strong>${m.immatriculation || 'N/A'}</strong></td>
-                        <td><span class="maintenance-type ${typeClass}">${m.type_maintenance || 'N/A'}</span></td>
-                        <td>${m.description || 'N/A'}</td>
-                        <td>${formatCurrency(m.cout)}</td>
-                        <td>${formatDate(m.date_debut)}</td>
-                        <td>${formatDate(m.date_fin)}</td>
-                        <td><span class="badge ${badgeClass}"><i data-lucide="${iconName}"></i> ${statutStr}</span></td>
-                    </tr>`;
-                }).join('');
-
-                lucide.createIcons();
-            } catch (e) {
-                console.error(e);
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--status-red); padding: 2rem;">Erreur de chargement des données de maintenance.</td></tr>`;
-                lucide.createIcons();
-            }
-        }
-
-        function refreshMaintenance(iconElement) {
-            if(iconElement) {
-                iconElement.style.transform = 'rotate(180deg)';
-                setTimeout(() => iconElement.style.transform = 'rotate(0deg)', 500);
-            }
-            document.getElementById('maintenance-body').innerHTML = `<tr><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td><td class="loading-skeleton">Loading</td></tr>`;
-            fetchMaintenanceStats();
-            fetchMaintenance();
-        }
-
-        // Initialize
-        document.addEventListener("DOMContentLoaded", () => {
-            fetchMaintenanceStats();
-            fetchMaintenance();
-        });
-    </script>
+document.addEventListener("DOMContentLoaded", () => {
+    fetchMaintenance();
+});
+</script>
 </body>
 </html>
