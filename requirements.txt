@@ -4,3 +4,4 @@ groq
 mysql-connector-python
 python-dotenv
 jinja2
+python-multipart
