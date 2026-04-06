@@ -23,27 +23,27 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+    return templates.TemplateResponse("dashboard.html", context={"request": request})
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+    return templates.TemplateResponse("dashboard.html", context={"request": request})
 
 @app.get("/login", response_class=HTMLResponse)
 def login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse("login.html", context={"request": request})
 
 @app.get("/stations", response_class=HTMLResponse)
 def stations(request: Request):
-    return templates.TemplateResponse("stations.html", {"request": request})
+    return templates.TemplateResponse("stations.html", context={"request": request})
 
 @app.get("/maintenance", response_class=HTMLResponse)
 def maintenance(request: Request):
-    return templates.TemplateResponse("maintenance.html", {"request": request})
+    return templates.TemplateResponse("maintenance.html", context={"request": request})
 
 @app.get("/add-data", response_class=HTMLResponse)
 def add_data(request: Request):
-    return templates.TemplateResponse("add-data.html", {"request": request})
+    return templates.TemplateResponse("add-data.html", context={"request": request})
 
 @app.get("/api/stats")
 def get_stats():
