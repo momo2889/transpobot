@@ -5,7 +5,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+def get_groq_client():
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise RuntimeError("GROQ_API_KEY n'est pas configurée")
+    return Groq(api_key=api_key)
 
 SYSTEM_PROMPT = """
 Tu es TranspoBot, assistant IA de gestion de transport urbain au Senegal.
@@ -32,6 +37,7 @@ Regles IMPORTANTES :
 """
 
 def ask_bot(question):
+    client = get_groq_client()
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
