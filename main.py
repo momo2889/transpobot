@@ -2,10 +2,11 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from chat import ask_bot, format_answer, format_empty_answer, build_fallback_answer
 from database import execute_query, get_connection
 import json
+import secrets
 app = FastAPI()
 
 app.add_middleware(
@@ -21,9 +22,9 @@ templates = Jinja2Templates(directory="templates")
 # Static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+@app.get("/")
+def home():
+    return RedirectResponse(url="/login")
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request):
@@ -172,7 +173,8 @@ def get_drivers():
     return execute_query(sql)
 
 @app.post("/api/vehicles")
-def add_vehicle(vehicle: dict):
+def add_vehicle(request: Request, vehicle: dict):
+    require_admin(request)
     required_fields = ['immatriculation', 'type', 'capacite']
     for field in required_fields:
         if field not in vehicle or not vehicle[field]:
@@ -194,7 +196,8 @@ def add_vehicle(vehicle: dict):
     return {"message": "Véhicule ajouté avec succès"}
 
 @app.post("/api/drivers")
-def add_driver(driver: dict):
+def add_driver(request: Request, driver: dict):
+    require_admin(request)
     required_fields = ['nom', 'prenom', 'numero_permis']
     for field in required_fields:
         if field not in driver or not driver[field]:
@@ -216,7 +219,8 @@ def add_driver(driver: dict):
     return {"message": "Chauffeur ajouté avec succès"}
 
 @app.post("/api/lines")
-def add_line(line: dict):
+def add_line(request: Request, line: dict):
+    require_admin(request)
     required_fields = ['code', 'origine', 'destination']
     for field in required_fields:
         if field not in line or not line[field]:
@@ -238,7 +242,8 @@ def add_line(line: dict):
     return {"message": "Ligne ajoutée avec succès"}
 
 @app.post("/api/trips")
-def add_trip(trip: dict):
+def add_trip(request: Request, trip: dict):
+    require_admin(request)
     required_fields = ['ligne_id', 'chauffeur_id', 'vehicule_id', 'date_heure_depart']
     for field in required_fields:
         if field not in trip or not trip[field]:
@@ -260,7 +265,8 @@ def add_trip(trip: dict):
     return {"message": "Trajet ajouté avec succès"}
 
 @app.post("/api/maintenance")
-def add_maintenance(maintenance: dict):
+def add_maintenance(request: Request, maintenance: dict):
+    require_admin(request)
     required_fields = ['vehicule_id', 'type_maintenance', 'description', 'date_debut']
     for field in required_fields:
         if field not in maintenance or not maintenance[field]:
@@ -282,28 +288,48 @@ def add_maintenance(maintenance: dict):
     execute_query(sql, params, commit=True)
     return {"message": "Maintenance ajoutée avec succès"}
 
-# Authentication routes (basic implementation)
+# ===== AUTHENTIFICATION =====
 users_db = {
-    "admin": {"password": "admin123", "role": "admin"},
-    "user": {"password": "user123", "role": "user"}
+    "admin":     {"password": "admin123",     "role": "admin",     "display": "Administrateur"},
+    "president": {"password": "president123", "role": "president", "display": "Président"},
 }
 
+# Tokens actifs en mémoire : {token: {username, role, display}}
+active_tokens: dict = {}
+
+def get_current_user(request: Request):
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    user = active_tokens.get(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+    return user
+
+def require_admin(request: Request):
+    user = get_current_user(request)
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Accès réservé à l'administrateur")
+    return user
+
 @app.post("/api/auth/login")
-def login(credentials: dict):
-    username = credentials.get('username')
-    password = credentials.get('password')
-
-    if not username or not password:
-        raise HTTPException(status_code=400, detail="Nom d'utilisateur et mot de passe requis")
-
+def auth_login(credentials: dict):
+    username = credentials.get("username", "").strip()
+    password = credentials.get("password", "")
     user = users_db.get(username)
-    if not user or user['password'] != password:
+    if not user or user["password"] != password:
         raise HTTPException(status_code=401, detail="Identifiants incorrects")
+    token = secrets.token_hex(32)
+    active_tokens[token] = {"username": username, "role": user["role"], "display": user["display"]}
+    return {"token": token, "user": {"username": username, "role": user["role"], "display": user["display"]}}
 
-    return {
-        "token": f"fake_token_{username}",
-        "user": {"username": username, "role": user['role']}
-    }
+@app.get("/api/auth/verify")
+def auth_verify(request: Request):
+    return get_current_user(request)
+
+@app.post("/api/auth/logout")
+def auth_logout(request: Request):
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    active_tokens.pop(token, None)
+    return {"message": "Déconnecté"}
 
 if __name__ == "__main__":
     import uvicorn

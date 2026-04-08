@@ -122,11 +122,12 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);tran
     <button class="nav-btn" onclick="window.location.href='/dashboard'"><i data-lucide="layout-dashboard"></i><span class="tooltip">Dashboard</span></button>
     <button class="nav-btn" onclick="window.location.href='/stations'"><i data-lucide="map-pin"></i><span class="tooltip">Stations</span></button>
     <button class="nav-btn active" onclick="window.location.href='/maintenance'"><i data-lucide="wrench"></i><span class="tooltip">Maintenance</span></button>
-    <button class="nav-btn" onclick="window.location.href='/add-data'"><i data-lucide="plus-circle"></i><span class="tooltip">Ajouter</span></button>
-    
+    <button class="nav-btn" id="nav-add" onclick="window.location.href='/add-data'"><i data-lucide="plus-circle"></i><span class="tooltip">Ajouter</span></button>
+
     <div class="sidebar-bottom">
       <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="Mode jour/nuit"><i data-lucide="moon"></i></button>
-      <div class="user-av">A</div>
+      <div class="user-av" id="user-initials" title="" style="cursor:default;">?</div>
+      <button class="nav-btn" onclick="logout()" title="Deconnexion" style="color:var(--red)"><i data-lucide="log-out"></i><span class="tooltip">Deconnexion</span></button>
     </div>
   </nav>
 
@@ -166,6 +167,26 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);tran
 </div>
 
 <script>
+// ===== AUTH =====
+const _token = localStorage.getItem('tb_token');
+const _user  = JSON.parse(localStorage.getItem('tb_user') || 'null');
+if(!_token || !_user){ window.location.replace('/login'); }
+
+function logout(){
+  fetch('/api/auth/logout',{method:'POST',headers:{'Authorization':'Bearer '+_token}}).catch(()=>{});
+  localStorage.removeItem('tb_token'); localStorage.removeItem('tb_user');
+  window.location.href='/login';
+}
+
+function applyRole(){
+  if(!_user) return;
+  const ini = document.getElementById('user-initials');
+  if(ini){ ini.textContent = _user.username.charAt(0).toUpperCase(); ini.title = _user.display || _user.username; }
+  const navAdd = document.getElementById('nav-add');
+  if(_user.role === 'president' && navAdd) navAdd.style.display='none';
+}
+
+
 lucide.createIcons();
 const API = window.location.origin + "/";
 
@@ -298,6 +319,7 @@ async function fetchMaintenance() {
 document.addEventListener("DOMContentLoaded", () => {
     fetchMaintenance();
 });
+applyRole();
 </script>
 </body>
 </html>

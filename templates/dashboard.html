@@ -187,11 +187,12 @@ tbody tr:hover td{background:var(--bg3)50;}
     <button class="nav-btn active" onclick="window.location.href='/dashboard'"><i data-lucide="layout-dashboard"></i><span class="tooltip">Dashboard</span></button>
     <button class="nav-btn" onclick="window.location.href='/stations'"><i data-lucide="map-pin"></i><span class="tooltip">Stations</span></button>
     <button class="nav-btn" onclick="window.location.href='/maintenance'"><i data-lucide="wrench"></i><span class="tooltip">Maintenance</span></button>
-    <button class="nav-btn" onclick="window.location.href='/add-data'"><i data-lucide="plus-circle"></i><span class="tooltip">Ajouter</span></button>
-    
+    <button class="nav-btn" id="nav-add" onclick="window.location.href='/add-data'"><i data-lucide="plus-circle"></i><span class="tooltip">Ajouter</span></button>
+
     <div class="sidebar-bottom">
       <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="Mode jour/nuit"><i data-lucide="moon"></i></button>
-      <div class="user-av">A</div>
+      <div class="user-av" id="user-initials" title="" style="cursor:default;">?</div>
+      <button class="nav-btn" onclick="logout()" title="Déconnexion" style="color:var(--red)"><i data-lucide="log-out"></i><span class="tooltip">Déconnexion</span></button>
     </div>
   </nav>
 
@@ -295,6 +296,17 @@ tbody tr:hover td{background:var(--bg3)50;}
 </div>
 
 <script>
+// ===== AUTH =====
+const _token = localStorage.getItem('tb_token');
+const _user  = JSON.parse(localStorage.getItem('tb_user') || 'null');
+if(!_token || !_user){ window.location.replace('/login'); }
+
+function logout(){
+  fetch('/api/auth/logout',{method:'POST',headers:{'Authorization':'Bearer '+_token}}).catch(()=>{});
+  localStorage.removeItem('tb_token'); localStorage.removeItem('tb_user');
+  window.location.href='/login';
+}
+
 // Icon Init
 lucide.createIcons();
 
@@ -465,6 +477,16 @@ document.getElementById('chatInput').addEventListener('input', function(){
 // Init fetch
 fetchStats();
 fetchTrajets();
+
+// Appliquer rôle
+if(_user){
+  const ini = document.getElementById('user-initials');
+  if(ini){ ini.textContent = _user.username.charAt(0).toUpperCase(); ini.title = _user.display || _user.username; }
+  if(_user.role === 'president'){
+    const navAdd = document.getElementById('nav-add');
+    if(navAdd) navAdd.style.display = 'none';
+  }
+}
 </script>
 </body>
 </html>
