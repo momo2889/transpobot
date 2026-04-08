@@ -106,20 +106,22 @@ def chat(body: dict):
             data = execute_query(sql)
             count = len(data)
     except Exception as e:
-        print(f"[ERREUR ask_bot/execute_query] {e}")
-        return {"answer": f"Erreur lors de la génération de la requête : {e}", "count": 0}
+        return {"answer": f"[ERREUR étape 1] {e}", "count": 0}
 
+    # DEBUG temporaire — à retirer une fois le problème identifié
     if not data:
-        return {"answer": explication or "Je n'ai pas trouvé de résultat.", "count": 0}
+        return {
+            "answer": f"[DEBUG] sql généré = {repr(sql)} | explication = {repr(explication)} | data vide",
+            "count": 0
+        }
 
     try:
         answer = format_answer(question, data)
         if answer:
             return {"answer": answer, "count": count}
     except Exception as e:
-        print(f"[ERREUR format_answer] {e}")
+        return {"answer": f"[ERREUR format_answer] {e} | fallback: {build_fallback_answer(data)}", "count": count}
 
-    # Fallback sans LLM si format_answer échoue
     return {"answer": build_fallback_answer(data), "count": count}
 
 @app.get("/api/maintenance")
