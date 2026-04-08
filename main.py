@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from chat import ask_bot, format_answer
+from chat import ask_bot, format_answer, build_fallback_answer
 from database import execute_query, get_connection
 import json
 app = FastAPI()
@@ -89,38 +89,38 @@ def get_trajets():
 @app.post("/api/chat")
 def chat(body: dict):
     question = body.get("question", "")
-    
+
     if not question:
-        return {"answer": "Posez-moi une question !", "sql": None, "data": []}
-    
+        return {"answer": "Posez-moi une question !", "count": 0}
+
+    explication = ""
+    data = []
+    count = 0
+
     try:
         result = ask_bot(question)
         sql = result.get("sql")
         explication = result.get("explication", "")
-        data = []
-        count = 0
-        
+
         if sql and sql.strip().upper().startswith("SELECT"):
             data = execute_query(sql)
             count = len(data)
-
-        if data:
-            answer = format_answer(question, data)
-        else:
-            answer = explication
-
-        return {
-            "answer": answer or explication,
-            "count": count
-        }
-    
     except Exception as e:
-        return {
-            "answer": "Desole, je n'ai pas pu traiter cette question.",
-            "sql": None,
-            "data": [],
-            "count": 0
-        }
+        print(f"[ERREUR ask_bot/execute_query] {e}")
+        return {"answer": f"Erreur lors de la génération de la requête : {e}", "count": 0}
+
+    if not data:
+        return {"answer": explication or "Je n'ai pas trouvé de résultat.", "count": 0}
+
+    try:
+        answer = format_answer(question, data)
+        if answer:
+            return {"answer": answer, "count": count}
+    except Exception as e:
+        print(f"[ERREUR format_answer] {e}")
+
+    # Fallback sans LLM si format_answer échoue
+    return {"answer": build_fallback_answer(data), "count": count}
 
 @app.get("/api/maintenance")
 def get_maintenance():

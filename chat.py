@@ -63,12 +63,14 @@ def ask_bot(question):
 
 
 def format_answer(question, data):
-    """Génère une réponse en langage naturel à partir des données SQL."""
+    """Génère une réponse en langage naturel à partir des données SQL via LLM."""
     if not data:
         return None
+
     client = get_groq_client()
     data_text = json.dumps(data, ensure_ascii=False, indent=2, default=str)
-    prompt = f"""Tu es TranspoBot, assistant de gestion de transport. On t'a posé cette question : "{question}"
+
+    prompt = f"""Tu es TranspoBot, assistant de gestion de transport au Sénégal. On t'a posé cette question : "{question}"
 
 La base de données a retourné ces données :
 {data_text}
@@ -78,9 +80,9 @@ Exemples de format attendu :
 - "La recette totale de 2025 est de 1 250 000 FCFA."
 - "Il y a actuellement 8 véhicules actifs."
 - "Les 3 chauffeurs disponibles sont : Mamadou Diallo, Fatou Ndiaye et Ibrahima Sow."
-- "Le trajet le plus long est la ligne L3 avec 45 km."
+- "Il y a 2 trajets en cours : Aminata BA sur la ligne L1 et Ibrahima Fall sur la ligne L4."
 
-Si les données contiennent plusieurs lignes, fais un résumé clair. Sois direct, sans introduction ni explication technique."""
+Si les données contiennent plusieurs lignes, fais un résumé clair et lisible. Sois direct, sans introduction ni explication technique."""
 
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
@@ -88,3 +90,33 @@ Si les données contiennent plusieurs lignes, fais un résumé clair. Sois direc
         temperature=0.2
     )
     return response.choices[0].message.content.strip()
+
+
+def build_fallback_answer(data):
+    """Construit une réponse lisible sans LLM, utilisée si format_answer échoue."""
+    if not data:
+        return None
+
+    rows = len(data)
+    cols = list(data[0].keys())
+
+    # Valeur unique (ex: COUNT, SUM)
+    if rows == 1 and len(cols) == 1:
+        key = cols[0]
+        val = data[0][key]
+        return f"Résultat : **{val}**"
+
+    # Une seule ligne, plusieurs colonnes
+    if rows == 1:
+        parts = [f"{k} : {v}" for k, v in data[0].items() if v is not None]
+        return " | ".join(parts)
+
+    # Plusieurs lignes
+    lines = []
+    for row in data[:8]:
+        parts = [str(v) for v in row.values() if v is not None]
+        lines.append("• " + " — ".join(parts))
+    result = f"{rows} résultat(s) trouvé(s) :\n" + "\n".join(lines)
+    if rows > 8:
+        result += f"\n... et {rows - 8} autres."
+    return result
