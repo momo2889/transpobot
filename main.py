@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from chat import ask_bot
+from chat import ask_bot, format_answer
 from database import execute_query, get_connection
 import json
 app = FastAPI()
@@ -103,11 +103,14 @@ def chat(body: dict):
         if sql and sql.strip().upper().startswith("SELECT"):
             data = execute_query(sql)
             count = len(data)
-        
+
+        if data:
+            answer = format_answer(question, data)
+        else:
+            answer = explication
+
         return {
-            "answer": explication,
-            "sql": sql,
-            "data": data,
+            "answer": answer or explication,
             "count": count
         }
     

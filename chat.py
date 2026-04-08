@@ -60,3 +60,31 @@ def ask_bot(question):
         content = content[start:end]
 
     return json.loads(content)
+
+
+def format_answer(question, data):
+    """Génère une réponse en langage naturel à partir des données SQL."""
+    if not data:
+        return None
+    client = get_groq_client()
+    data_text = json.dumps(data, ensure_ascii=False, indent=2, default=str)
+    prompt = f"""Tu es TranspoBot, assistant de gestion de transport. On t'a posé cette question : "{question}"
+
+La base de données a retourné ces données :
+{data_text}
+
+Réponds directement à la question en une ou deux phrases naturelles et précises en français.
+Exemples de format attendu :
+- "La recette totale de 2025 est de 1 250 000 FCFA."
+- "Il y a actuellement 8 véhicules actifs."
+- "Les 3 chauffeurs disponibles sont : Mamadou Diallo, Fatou Ndiaye et Ibrahima Sow."
+- "Le trajet le plus long est la ligne L3 avec 45 km."
+
+Si les données contiennent plusieurs lignes, fais un résumé clair. Sois direct, sans introduction ni explication technique."""
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.2
+    )
+    return response.choices[0].message.content.strip()
