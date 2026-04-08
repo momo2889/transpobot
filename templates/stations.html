@@ -215,6 +215,10 @@ function logout(){
   window.location.href='/login';
 }
 
+function authFetch(url, opts={}){
+  return fetch(url, {...opts, headers:{...(opts.headers||{}), 'Authorization':'Bearer '+_token}});
+}
+
 function applyRole(){
   if(!_user) return;
   const ini = document.getElementById('user-initials');
@@ -263,7 +267,7 @@ function showTab(tabName) {
 async function fetchLines() {
   const tbody = document.getElementById('lines-body');
   try {
-      const res = await fetch(`${API}api/lines`);
+      const res = await authFetch(`${API}api/lines`);
       if(!res.ok) throw new Error("API Error");
       const data = await res.json();
       if(!data || data.length === 0) {
@@ -289,7 +293,7 @@ async function fetchLines() {
 async function fetchVehicles() {
   const tbody = document.getElementById('vehicles-body');
   try {
-      const res = await fetch(`${API}api/vehicles`);
+      const res = await authFetch(`${API}api/vehicles`);
       if(!res.ok) throw new Error("API Error");
       const data = await res.json();
       if(!data || data.length === 0) {
@@ -319,7 +323,7 @@ async function fetchVehicles() {
 async function fetchStations() {
   const tbody = document.getElementById('stations-body');
   try {
-      const res = await fetch(`${API}api/stations`);
+      const res = await authFetch(`${API}api/stations`);
       if(!res.ok) throw new Error("API Error");
       const data = await res.json();
       if(!data || data.length === 0) {

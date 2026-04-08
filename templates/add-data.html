@@ -376,6 +376,10 @@ function logout(){
   window.location.href='/login';
 }
 
+function authFetch(url, opts={}){
+  return fetch(url, {...opts, headers:{...(opts.headers||{}), 'Authorization':'Bearer '+_token}});
+}
+
 lucide.createIcons();
 const API = window.location.origin + "/";
 
@@ -426,7 +430,7 @@ function showMsg(type, text) {
 async function loadSelects() {
     try {
         const [linesRes, drvRes, vehRes] = await Promise.all([
-            fetch(`${API}api/lines`), fetch(`${API}api/drivers`), fetch(`${API}api/vehicles`)
+            authFetch(`${API}api/lines`), authFetch(`${API}api/drivers`), authFetch(`${API}api/vehicles`)
         ]);
         
         if(linesRes.ok) {
@@ -465,7 +469,7 @@ async function submitForm(e, endpoint, formId) {
     const data = Object.fromEntries(formData);
     
     try {
-        const res = await fetch(`${API}api/${endpoint}`, {
+        const res = await authFetch(`${API}api/${endpoint}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)

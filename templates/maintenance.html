@@ -178,6 +178,10 @@ function logout(){
   window.location.href='/login';
 }
 
+function authFetch(url, opts={}){
+  return fetch(url, {...opts, headers:{...(opts.headers||{}), 'Authorization':'Bearer '+_token}});
+}
+
 function applyRole(){
   if(!_user) return;
   const ini = document.getElementById('user-initials');
@@ -249,7 +253,7 @@ function calculateProgress(dateDebut, dateFin, statut) {
 async function fetchMaintenance() {
     const grid = document.getElementById('maint-grid');
     try {
-        const res = await fetch(`${API}api/maintenance`);
+        const res = await authFetch(`${API}api/maintenance`);
         if(!res.ok) throw new Error("API Error");
         const data = await res.json();
         

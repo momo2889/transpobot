@@ -5,15 +5,16 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from chat import ask_bot, format_answer, format_empty_answer, build_fallback_answer
 from database import execute_query, get_connection
-import json
-import secrets
+from datetime import datetime, timedelta, timezone
+import json, secrets, os
 app = FastAPI()
 
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # Templates
@@ -47,7 +48,8 @@ def add_data(request: Request):
     return templates.TemplateResponse("add-data.html", {"request": request})
 
 @app.get("/api/stats")
-def get_stats():
+def get_stats(request: Request):
+    get_current_user(request)
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     
@@ -74,7 +76,8 @@ def get_stats():
     }
 
 @app.get("/api/trajets/recent")
-def get_trajets():
+def get_trajets(request: Request):
+    get_current_user(request)
     sql = """
         SELECT t.id, l.code as ligne,
                CONCAT(c.prenom, ' ', c.nom) as chauffeur_nom,
@@ -88,11 +91,15 @@ def get_trajets():
     return execute_query(sql)
 
 @app.post("/api/chat")
-def chat(body: dict):
+def chat(request: Request, body: dict):
+    get_current_user(request)
     question = body.get("question", "")
 
     if not question:
         return {"answer": "Posez-moi une question !", "count": 0}
+
+    if len(question) > 500:
+        return {"answer": "Question trop longue (500 caractères max).", "count": 0}
 
     explication = ""
     data = []
@@ -126,7 +133,8 @@ def chat(body: dict):
     return {"answer": build_fallback_answer(data) or explication, "count": count}
 
 @app.get("/api/maintenance")
-def get_maintenance():
+def get_maintenance(request: Request):
+    get_current_user(request)
     sql = """
         SELECT m.id, v.immatriculation, m.type_maintenance, m.description, 
                m.cout, m.date_debut, m.date_fin, m.statut
@@ -137,7 +145,8 @@ def get_maintenance():
     return execute_query(sql)
 
 @app.get("/api/stations")
-def get_stations():
+def get_stations(request: Request):
+    get_current_user(request)
     sql = """
         SELECT s.id, l.code as ligne_code, l.nom as ligne_nom, 
                s.nom as station_nom, s.ordre, s.latitude, s.longitude
@@ -158,17 +167,20 @@ def get_stations_by_line(ligne_id: int):
     return execute_query(sql, (ligne_id,))
 
 @app.get("/api/lines")
-def get_lines():
+def get_lines(request: Request):
+    get_current_user(request)
     sql = "SELECT * FROM lignes ORDER BY code"
     return execute_query(sql)
 
 @app.get("/api/vehicles")
-def get_vehicles():
+def get_vehicles(request: Request):
+    get_current_user(request)
     sql = "SELECT * FROM vehicules ORDER BY immatriculation"
     return execute_query(sql)
 
 @app.get("/api/drivers")
-def get_drivers():
+def get_drivers(request: Request):
+    get_current_user(request)
     sql = "SELECT * FROM chauffeurs ORDER BY nom, prenom"
     return execute_query(sql)
 
@@ -289,20 +301,51 @@ def add_maintenance(request: Request, maintenance: dict):
     return {"message": "Maintenance ajoutée avec succès"}
 
 # ===== AUTHENTIFICATION =====
+# Mots de passe lus depuis les variables d'environnement (Railway)
 users_db = {
-    "admin":     {"password": "admin123",     "role": "admin",     "display": "Administrateur"},
-    "president": {"password": "president123", "role": "president", "display": "Président"},
+    "admin":     {"password": os.getenv("ADMIN_PASSWORD", "admin123"),     "role": "admin",     "display": "Administrateur"},
+    "president": {"password": os.getenv("PRESIDENT_PASSWORD", "president123"), "role": "president", "display": "Président"},
 }
 
-# Tokens actifs en mémoire : {token: {username, role, display}}
+# Tokens actifs : {token: {username, role, display, expires_at}}
 active_tokens: dict = {}
+TOKEN_TTL = timedelta(hours=8)
+
+# Rate limiting login : {ip: {"count": int, "blocked_until": datetime|None}}
+login_attempts: dict = {}
+MAX_ATTEMPTS = 5
+LOCKOUT_MINUTES = 15
+
+def _get_ip(request: Request) -> str:
+    return request.headers.get("X-Forwarded-For", request.client.host).split(",")[0].strip()
+
+def _check_rate_limit(ip: str):
+    now = datetime.now(timezone.utc)
+    data = login_attempts.get(ip, {"count": 0, "blocked_until": None})
+    if data["blocked_until"] and now < data["blocked_until"]:
+        secs = int((data["blocked_until"] - now).total_seconds())
+        raise HTTPException(status_code=429, detail=f"Trop de tentatives. Réessayez dans {secs // 60 + 1} min.")
+
+def _record_failure(ip: str):
+    now = datetime.now(timezone.utc)
+    data = login_attempts.get(ip, {"count": 0, "blocked_until": None})
+    data["count"] = data.get("count", 0) + 1
+    if data["count"] >= MAX_ATTEMPTS:
+        data["blocked_until"] = now + timedelta(minutes=LOCKOUT_MINUTES)
+        data["count"] = 0
+    login_attempts[ip] = data
 
 def get_current_user(request: Request):
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    user = active_tokens.get(token)
-    if not user:
+    token = request.headers.get("Authorization", "").replace("Bearer ", "").strip()
+    if not token:
         raise HTTPException(status_code=401, detail="Non authentifié")
-    return user
+    entry = active_tokens.get(token)
+    if not entry:
+        raise HTTPException(status_code=401, detail="Token invalide")
+    if datetime.now(timezone.utc) > entry["expires_at"]:
+        active_tokens.pop(token, None)
+        raise HTTPException(status_code=401, detail="Session expirée, reconnectez-vous")
+    return entry
 
 def require_admin(request: Request):
     user = get_current_user(request)
@@ -311,23 +354,32 @@ def require_admin(request: Request):
     return user
 
 @app.post("/api/auth/login")
-def auth_login(credentials: dict):
+def auth_login(request: Request, credentials: dict):
+    ip = _get_ip(request)
+    _check_rate_limit(ip)
     username = credentials.get("username", "").strip()
     password = credentials.get("password", "")
     user = users_db.get(username)
-    if not user or user["password"] != password:
+    # secrets.compare_digest évite les attaques par timing
+    if not user or not secrets.compare_digest(password, user["password"]):
+        _record_failure(ip)
         raise HTTPException(status_code=401, detail="Identifiants incorrects")
+    login_attempts.pop(ip, None)  # reset si succès
     token = secrets.token_hex(32)
-    active_tokens[token] = {"username": username, "role": user["role"], "display": user["display"]}
+    active_tokens[token] = {
+        "username": username, "role": user["role"],
+        "display": user["display"], "expires_at": datetime.now(timezone.utc) + TOKEN_TTL
+    }
     return {"token": token, "user": {"username": username, "role": user["role"], "display": user["display"]}}
 
 @app.get("/api/auth/verify")
 def auth_verify(request: Request):
-    return get_current_user(request)
+    user = get_current_user(request)
+    return {"username": user["username"], "role": user["role"], "display": user["display"]}
 
 @app.post("/api/auth/logout")
 def auth_logout(request: Request):
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    token = request.headers.get("Authorization", "").replace("Bearer ", "").strip()
     active_tokens.pop(token, None)
     return {"message": "Déconnecté"}
 

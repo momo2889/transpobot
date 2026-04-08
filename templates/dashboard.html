@@ -307,6 +307,10 @@ function logout(){
   window.location.href='/login';
 }
 
+function authFetch(url, opts={}){
+  return fetch(url, {...opts, headers:{...(opts.headers||{}), 'Authorization':'Bearer '+_token}});
+}
+
 // Icon Init
 lucide.createIcons();
 
@@ -357,7 +361,7 @@ function formatDate(dateString) {
 
 async function fetchStats(){
   try {
-    const res = await fetch(`${API}api/stats`);
+    const res = await authFetch(`${API}api/stats`);
     if(!res.ok) throw new Error('API failed');
     const data = await res.json();
     document.getElementById('stat-total').textContent = data.total_trajets ?? '0';
@@ -375,7 +379,7 @@ async function fetchStats(){
 async function fetchTrajets(){
   const tbody = document.getElementById('trajets-body');
   try {
-    const res = await fetch(`${API}api/trajets/recent`);
+    const res = await authFetch(`${API}api/trajets/recent`);
     if(!res.ok) throw new Error('API failed');
     const data = await res.json();
     if(!Array.isArray(data) || data.length === 0){
@@ -432,7 +436,7 @@ async function sendMsg(){
   b.disabled = true;
 
   try {
-    const response = await fetch(`${API}api/chat`, {
+    const response = await authFetch(`${API}api/chat`, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({question:q})
