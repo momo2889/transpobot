@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from chat import ask_bot, format_answer, build_fallback_answer
+from chat import ask_bot, format_answer, format_empty_answer, build_fallback_answer
 from database import execute_query, get_connection
 import json
 app = FastAPI()
@@ -106,23 +106,23 @@ def chat(body: dict):
             data = execute_query(sql)
             count = len(data)
     except Exception as e:
-        return {"answer": f"[ERREUR étape 1] {e}", "count": 0}
+        print(f"[ERREUR ask_bot/execute_query] {e}")
+        return {"answer": "Je n'ai pas pu analyser cette question. Reformulez-la différemment.", "count": 0}
 
-    # DEBUG temporaire — à retirer une fois le problème identifié
     if not data:
-        return {
-            "answer": f"[DEBUG] sql généré = {repr(sql)} | explication = {repr(explication)} | data vide",
-            "count": 0
-        }
+        try:
+            return {"answer": format_empty_answer(question), "count": 0}
+        except Exception:
+            return {"answer": explication or "Aucun résultat trouvé pour cette question.", "count": 0}
 
     try:
         answer = format_answer(question, data)
         if answer:
             return {"answer": answer, "count": count}
     except Exception as e:
-        return {"answer": f"[ERREUR format_answer] {e} | fallback: {build_fallback_answer(data)}", "count": count}
+        print(f"[ERREUR format_answer] {e}")
 
-    return {"answer": build_fallback_answer(data), "count": count}
+    return {"answer": build_fallback_answer(data) or explication, "count": count}
 
 @app.get("/api/maintenance")
 def get_maintenance():
