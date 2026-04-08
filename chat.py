@@ -58,10 +58,18 @@ GESTION DES PERIODES DE TEMPS (pour recette, trajets, etc.) :
 - "du mois dernier" → WHERE MONTH(date_heure_depart) = MONTH(CURRENT_DATE) - 1 AND YEAR(date_heure_depart) = YEAR(CURRENT_DATE)
 - "de la semaine derniere" → WHERE YEARWEEK(date_heure_depart) = YEARWEEK(CURRENT_DATE) - 1
 
-EXEMPLES :
+EXEMPLES IMPORTANTS :
 - Recette du mois : SELECT SUM(recette) as recette_totale FROM trajets WHERE MONTH(date_heure_depart) = MONTH(CURRENT_DATE) AND YEAR(date_heure_depart) = YEAR(CURRENT_DATE)
 - Trajets en cours : SELECT t.id, l.code as ligne, CONCAT(c.prenom, ' ', c.nom) as chauffeur, t.date_heure_depart FROM trajets t JOIN lignes l ON t.ligne_id = l.id JOIN chauffeurs c ON t.chauffeur_id = c.id WHERE t.statut = 'en_cours'
 - Vehicules actifs : SELECT * FROM vehicules WHERE statut = 'actif'
+
+MAINTENANCE — TRES IMPORTANT :
+- "Vehicules en maintenance" ou "véhicules en panne" ou "maintenance" = toujours chercher dans la TABLE maintenance jointe avec vehicules.
+  Ne jamais filtrer sur vehicules.statut pour la maintenance.
+  Requete correcte : SELECT v.immatriculation, m.type_maintenance, m.description, m.statut, m.date_debut, m.date_fin FROM maintenance m JOIN vehicules v ON m.vehicule_id = v.id ORDER BY m.date_debut DESC
+- "Maintenances en cours" = ajouter WHERE m.statut = 'en_cours'
+- "Maintenances terminees" = ajouter WHERE m.statut = 'termine'
+- Ne JAMAIS chercher vehicules.statut = 'en_maintenance' — cette valeur n existe pas.
 """
 
 def ask_bot(question):
