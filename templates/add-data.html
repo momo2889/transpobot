@@ -26,6 +26,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);tra
 
 /* ===== LAYOUT ===== */
 .app{display:grid;grid-template-columns:64px 1fr;grid-template-rows:58px 1fr;height:100vh;overflow:hidden;}
+@media (max-width: 768px) {
+  html,body{height:100%;overflow:hidden;}
+}
 
 /* ===== SIDEBAR ===== */
 .sidebar{
@@ -112,13 +115,17 @@ select.c-input { appearance: none; background-image: url('data:image/svg+xml;cha
 @media (max-width: 768px) {
   .app{grid-template-columns:1fr; grid-template-rows:58px 1fr 64px;}
   .sidebar{grid-row:3; grid-column:1; border-right:none; border-top:1px solid var(--border); flex-direction:row; padding:0 20px; justify-content:space-between; height:64px; z-index:50;}
+  .topbar{grid-column:1;}
+  .main{grid-column:1; padding: 16px; padding-bottom: 80px;}
   .sidebar-bottom { display:none;}
   .logo-icon{display:none;}
   .nav-btn .tooltip{display:none;}
-  .main{padding: 16px; padding-bottom: 80px;}
+  .app-sub{display:none;}
+  .fcard{max-width:100%;}
   .form-grid { grid-template-columns: 1fr; }
   .form-actions { justify-content: stretch; flex-direction: column-reverse; }
   .form-actions .btn { width: 100%; justify-content: center; }
+  .live-pill{padding:4px 8px; font-size:10px;}
 }
 </style>
 </head>

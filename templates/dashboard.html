@@ -149,20 +149,22 @@ tbody tr:hover td{background:var(--bg3)50;}
 @media (max-width: 768px) {
   .app{grid-template-columns:1fr; grid-template-rows:58px 1fr 64px;}
   .sidebar{grid-row:3; grid-column:1; border-right:none; border-top:1px solid var(--border); flex-direction:row; padding:0 20px; justify-content:space-between; height:64px; z-index:50;}
-  .sidebar-bottom { display:none;} /* Hide theme toggle from bottom on mobile, move to topbar */
+  .topbar{grid-column:1;}
+  .main{grid-column:1; grid-template-columns:1fr;}
+  .sidebar-bottom { display:none;}
   .logo-icon{display:none;}
   .nav-btn .tooltip{display:none;}
+  .app-sub{display:none;}
   .stats{grid-template-columns:repeat(2,1fr);}
   .right{width:100%; right:-100%;}
   .left{padding: 14px; padding-bottom: 80px;}
   .table-wrap table{min-width:auto;}
+  .live-pill{padding:4px 8px; font-size:10px;}
 }
 
 @media (max-width: 520px) {
-  .topbar{padding:12px 16px;gap:10px;}
-  .topbar-right{margin-left:0;justify-content:flex-end;width:100%;}
-  .app-name{display:block;}
-  .main{grid-template-columns:1fr;}
+  .topbar{padding:10px 14px;gap:8px;}
+  .topbar-right{gap:6px;}
   .stats{grid-template-columns:1fr;}
   .tcard, .scard, .table-wrap{width:100%;}
   .search{width:100%;}
@@ -170,7 +172,8 @@ tbody tr:hover td{background:var(--bg3)50;}
   .send-btn{width:100%;}
   .chat-input-zone{padding:12px;}
   .chat-close{margin-left:0;}
-  .mobile-chat-toggle{right:12px;bottom:90px;}
+  .mobile-chat-toggle{right:12px;bottom:80px;}
+  .sc-val{font-size:24px;}
 }
 
 </style>
