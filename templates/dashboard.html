@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TranspoBot — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -22,7 +22,7 @@
   --text:#0F172A;--muted:#64748B;--border:#CBD5E1;--card:#FFFFFF;
 }
 html,body{min-height:100%;overflow-x:hidden;overflow-y:auto;}
-body{font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;background:var(--bg);color:var(--text);transition:background .3s,color .3s;letter-spacing:0.01em;}
+body{font-family:'Outfit',sans-serif;font-size:15px;line-height:1.6;background:var(--bg);color:var(--text);transition:background .3s,color .3s;letter-spacing:0.01em;}
 
 /* ===== LAYOUT ===== */
 .app{display:grid;grid-template-columns:64px 1fr;grid-template-rows:58px 1fr;min-height:100vh;overflow:visible;}
@@ -49,7 +49,7 @@ body{font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;background:va
   grid-column:2;background:var(--bg2);border-bottom:1px solid var(--border);
   display:flex;align-items:center;padding:0 22px;gap:16px;transition:background .3s;
 }
-.app-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px;}
+.app-name{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px;}
 .app-sub{font-size:11px;color:var(--muted);margin-left:2px;}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
 .live-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);background:var(--bg3);padding:5px 12px;border-radius:999px;border:1px solid var(--green)40;}
@@ -72,13 +72,13 @@ body{font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;background:va
 .sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
 .sc-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;}
 .sc-ico.b{background:#1e3a8a25;} .sc-ico.g{background:#14532d25;} .sc-ico.o{background:#78350f25;} .sc-ico.r{background:#7f1d1d25;}
-.sc-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1; min-height: 30px;}
+.sc-val{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:800;line-height:1; min-height: 30px;}
 .sc-lbl{font-size:11px;color:var(--muted);margin-top:3px;}
 
 /* ===== TABLE CARD ===== */
 .tcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;overflow:hidden;}
 .tcard-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.search{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 13px;font-size:13px;color:var(--text);width:190px;outline:none;font-family:'Inter',sans-serif;transition:border-color .2s;}
+.search{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 13px;font-size:13px;color:var(--text);width:190px;outline:none;font-family:'Outfit',sans-serif;transition:border-color .2s;}
 .search:focus{border-color:var(--blue2);}
 .table-wrap{width: 100%; overflow-x: auto;}
 table{width:100%;border-collapse:collapse; min-width: 600px;}
@@ -92,14 +92,14 @@ tbody tr:hover td{background:var(--bg3)50;}
 /* ===== CHAT RIGHT PANEL ===== */
 .chat-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
 .bot-av{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#2563EB,#38BDF8);display:flex;align-items:center;justify-content:center;}
-.bot-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.bot-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;}
 .bot-st{font-size:10px;color:var(--green);display:flex;align-items:center;gap:4px;margin-top:2px;}
 
 /* SUGGESTED */
 .suggested{padding:12px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .sug-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;margin-bottom:8px;}
 .sug-list{display:flex;flex-direction:column;gap:5px;}
-.sug-btn{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:none;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;text-align:left;width:100%;transition:all .2s;}
+.sug-btn{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:none;color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;cursor:pointer;text-align:left;width:100%;transition:all .2s;}
 .sug-btn:hover{border-color:var(--blue2);background:var(--bg3);}
 .sug-ico{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
 .sug-arr{margin-left:auto;color:var(--muted);font-size:12px;}
@@ -127,7 +127,7 @@ tbody tr:hover td{background:var(--bg3)50;}
 .chat-input-zone{padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0;}
 .input-outer{display:flex;align-items:flex-end;gap:8px;background:var(--bg3);border:1.5px solid var(--border);border-radius:14px;padding:10px 14px;transition:border-color .2s;}
 .input-outer:focus-within{border-color:var(--blue2);}
-.cinput{flex:1;background:none;border:none;outline:none;font-size:14px;color:var(--text);resize:none;font-family:'Inter',sans-serif;max-height:100px;line-height:1.6;}
+.cinput{flex:1;background:none;border:none;outline:none;font-size:14px;color:var(--text);resize:none;font-family:'Outfit',sans-serif;max-height:100px;line-height:1.6;}
 .cinput::placeholder{color:var(--muted);}
 .send-btn{width:34px;height:34px;border-radius:9px;background:var(--blue);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;transition:background .2s;}
 .send-btn:hover{background:var(--blue2);}

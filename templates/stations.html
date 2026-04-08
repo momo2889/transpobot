@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TranspoBot — Stations</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -22,7 +22,7 @@
   --text:#0F172A;--muted:#64748B;--border:#CBD5E1;--card:#FFFFFF;
 }
 html,body{height:100%;overflow:hidden;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;}
 
 /* ===== LAYOUT ===== */
 .app{display:grid;grid-template-columns:64px 1fr;grid-template-rows:58px 1fr;height:100vh;overflow:hidden;}
@@ -49,7 +49,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);tra
   grid-column:2;background:var(--bg2);border-bottom:1px solid var(--border);
   display:flex;align-items:center;padding:0 22px;gap:16px;transition:background .3s;
 }
-.app-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px;}
+.app-name{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px;}
 .app-sub{font-size:11px;color:var(--muted);margin-left:2px;}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
 .live-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);background:var(--bg3);padding:5px 12px;border-radius:999px;border:1px solid var(--green)40;}
@@ -66,7 +66,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);tra
 .tab-row::-webkit-scrollbar { display: none; }
 .tab-btn {
   padding: 8px 20px; border-radius: 12px; border: 1px solid var(--border);
-  background: var(--card); color: var(--muted); font-size: 13px; font-family: 'DM Sans', sans-serif;
+  background: var(--card); color: var(--muted); font-size: 13px; font-family: 'Outfit', sans-serif;
   cursor: pointer; transition: all 0.2s; white-space: nowrap; font-weight: 500;
 }
 .tab-btn.active {
@@ -151,7 +151,7 @@ tbody tr:hover td{background:var(--bg3)50;}
     <!-- TAB: LINES -->
     <div id="tab-lines" class="tcard view-tab">
       <div class="tcard-hd">
-        <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;">Lignes de Transport</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;">Lignes de Transport</span>
       </div>
       <div class="table-wrap">
         <table>
@@ -168,7 +168,7 @@ tbody tr:hover td{background:var(--bg3)50;}
     <!-- TAB: VEHICLES -->
     <div id="tab-vehicles" class="tcard view-tab" style="display:none;">
       <div class="tcard-hd">
-        <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;">Flotte de Véhicules</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;">Flotte de Véhicules</span>
       </div>
       <div class="table-wrap">
         <table>
@@ -185,7 +185,7 @@ tbody tr:hover td{background:var(--bg3)50;}
     <!-- TAB: STATIONS -->
     <div id="tab-stations" class="tcard view-tab" style="display:none;">
       <div class="tcard-hd">
-        <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;">Stations (Arrêts par Ligne)</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;">Stations (Arrêts par Ligne)</span>
       </div>
       <div class="table-wrap">
         <table>

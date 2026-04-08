@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TranspoBot — Ajouter Données</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -22,7 +22,7 @@
   --text:#0F172A;--muted:#64748B;--border:#CBD5E1;--card:#FFFFFF;
 }
 html,body{height:100%;overflow:hidden;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;}
 
 /* ===== LAYOUT ===== */
 .app{display:grid;grid-template-columns:64px 1fr;grid-template-rows:58px 1fr;height:100vh;overflow:hidden;}
@@ -52,7 +52,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);tra
   grid-column:2;background:var(--bg2);border-bottom:1px solid var(--border);
   display:flex;align-items:center;padding:0 22px;gap:16px;transition:background .3s;
 }
-.app-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px;}
+.app-name{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px;}
 .app-sub{font-size:11px;color:var(--muted);margin-left:2px;}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
 .live-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);background:var(--bg3);padding:5px 12px;border-radius:999px;border:1px solid var(--green)40;}
@@ -69,7 +69,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);tra
 .tab-row::-webkit-scrollbar { display: none; }
 .tab-btn {
   padding: 8px 20px; border-radius: 12px; border: 1px solid var(--border);
-  background: var(--card); color: var(--muted); font-size: 13px; font-family: 'DM Sans', sans-serif;
+  background: var(--card); color: var(--muted); font-size: 13px; font-family: 'Outfit', sans-serif;
   cursor: pointer; transition: all 0.2s; white-space: nowrap; font-weight: 500;
 }
 .tab-btn.active {
@@ -79,7 +79,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);tra
 
 /* FORMS */
 .fcard { background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:800px; }
-.fcard-hd { font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px; }
+.fcard-hd { font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px; }
 
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
 .form-group { display: flex; flex-direction: column; gap: 6px; }
@@ -87,7 +87,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);tra
 .c-input {
     width: 100%; background: var(--bg3); border: 1.5px solid var(--border);
     padding: 12px 14px; border-radius: 10px; color: var(--text);
-    font-size: 13px; font-family: 'DM Sans', sans-serif; transition: all 0.3s; outline: none;
+    font-size: 13px; font-family: 'Outfit', sans-serif; transition: all 0.3s; outline: none;
 }
 .c-input:focus { border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 .c-input::placeholder { color: var(--muted); }
@@ -96,7 +96,7 @@ select.c-input { appearance: none; background-image: url('data:image/svg+xml;cha
 .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
 .btn {
     padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; font-family: 'Outfit', sans-serif;
 }
 .btn-primary { background: var(--blue); color: white; }
 .btn-primary:hover { background: var(--blue2); transform: translateY(-1px); }
