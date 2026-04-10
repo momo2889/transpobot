@@ -6,6 +6,7 @@
 <title>TranspoBot — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -253,7 +254,47 @@ tbody tr:hover td{background:var(--bg3)50;}
           </div>
         </div>
       </section>
-      
+
+      <!-- ===== ANALYTICS ===== -->
+      <section id="tab-analytics" style="margin-top:4px;">
+        <div class="sec-lbl">Analytiques</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+
+          <!-- Recette mensuelle -->
+          <div class="tcard" style="grid-column:1/-1;">
+            <div class="tcard-hd">
+              <span style="font-size:13px;font-weight:600;"><i data-lucide="trending-up" size="14" style="vertical-align:middle;margin-right:4px;"></i> Recette des 6 derniers mois</span>
+            </div>
+            <canvas id="chartRevenue" height="90"></canvas>
+          </div>
+
+          <!-- Trajets par ligne -->
+          <div class="tcard">
+            <div class="tcard-hd">
+              <span style="font-size:13px;font-weight:600;"><i data-lucide="route" size="14" style="vertical-align:middle;margin-right:4px;"></i> Trajets par ligne</span>
+            </div>
+            <canvas id="chartLines" height="160"></canvas>
+          </div>
+
+          <!-- Statut véhicules -->
+          <div class="tcard">
+            <div class="tcard-hd">
+              <span style="font-size:13px;font-weight:600;"><i data-lucide="pie-chart" size="14" style="vertical-align:middle;margin-right:4px;"></i> Statut véhicules</span>
+            </div>
+            <canvas id="chartVehicles" height="160"></canvas>
+          </div>
+
+        </div>
+
+        <!-- Top Chauffeurs -->
+        <div class="tcard" style="margin-top:10px;">
+          <div class="tcard-hd">
+            <span style="font-size:13px;font-weight:600;"><i data-lucide="award" size="14" style="vertical-align:middle;margin-right:4px;"></i> Top Chauffeurs</span>
+          </div>
+          <div id="top-drivers-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+      </section>
+
       <!-- Mobile Chat Toggle -->
       <button class="mobile-chat-toggle" onclick="toggleChat()"><i data-lucide="message-square"></i></button>
     </div>
@@ -482,6 +523,136 @@ document.getElementById('chatInput').addEventListener('input', function(){
 // Init fetch
 fetchStats();
 fetchTrajets();
+fetchAnalytics();
+
+// Auto-refresh toutes les 60s
+setInterval(() => { fetchStats(); fetchTrajets(); }, 60000);
+
+// ===== ANALYTICS =====
+let chartRevenue = null, chartLines = null, chartVehicles = null;
+
+function chartDefaults(){
+  const isDark = !document.documentElement.classList.contains('light');
+  return {
+    gridColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)',
+    textColor: isDark ? '#94a3b8' : '#64748b',
+    fontFamily: "'Outfit', sans-serif"
+  };
+}
+
+async function fetchAnalytics(){
+  try {
+    const [revData, lineData, vehData, drvData] = await Promise.all([
+      authFetch(`${API}api/analytics/revenue-monthly`).then(r=>r.json()),
+      authFetch(`${API}api/analytics/trips-by-line`).then(r=>r.json()),
+      authFetch(`${API}api/analytics/vehicles-status`).then(r=>r.json()),
+      authFetch(`${API}api/analytics/top-drivers`).then(r=>r.json()),
+    ]);
+    buildRevenueChart(revData);
+    buildLinesChart(lineData);
+    buildVehiclesChart(vehData);
+    buildTopDrivers(drvData);
+  } catch(e){ console.error('Analytics error', e); }
+}
+
+function buildRevenueChart(data){
+  const {gridColor, textColor} = chartDefaults();
+  const labels = data.map(d => d.label || d.mois);
+  const values = data.map(d => parseFloat(d.recette_totale) || 0);
+  if(chartRevenue) chartRevenue.destroy();
+  chartRevenue = new Chart(document.getElementById('chartRevenue'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Recette (FCFA)',
+        data: values,
+        backgroundColor: 'rgba(37,99,235,0.7)',
+        borderColor: '#3B82F6',
+        borderWidth: 1.5,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: "'Outfit'" } } },
+        y: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: "'Outfit'" }, callback: v => v.toLocaleString('fr-FR') + ' F' } }
+      }
+    }
+  });
+}
+
+function buildLinesChart(data){
+  const {gridColor, textColor} = chartDefaults();
+  const labels = data.map(d => d.ligne);
+  const values = data.map(d => parseInt(d.total));
+  const colors = ['#2563EB','#38BDF8','#22C55E','#F59E0B','#EF4444','#8B5CF6','#EC4899','#14B8A6'];
+  if(chartLines) chartLines.destroy();
+  chartLines = new Chart(document.getElementById('chartLines'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors.slice(0, labels.length),
+        borderRadius: 5,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: textColor } },
+        y: { grid: { display: false }, ticks: { color: textColor } }
+      }
+    }
+  });
+}
+
+function buildVehiclesChart(data){
+  const {textColor} = chartDefaults();
+  const statusLabels = { actif: 'Actifs', en_maintenance: 'En maintenance', hors_service: 'Hors service' };
+  const colors = { actif: '#22C55E', en_maintenance: '#F59E0B', hors_service: '#EF4444' };
+  const labels = data.map(d => statusLabels[d.statut] || d.statut);
+  const values = data.map(d => parseInt(d.total));
+  const bgColors = data.map(d => colors[d.statut] || '#64748b');
+  if(chartVehicles) chartVehicles.destroy();
+  chartVehicles = new Chart(document.getElementById('chartVehicles'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: bgColors, borderWidth: 2, borderColor: 'transparent', hoverOffset: 6 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { color: textColor, font: { family: "'Outfit'" }, padding: 14, boxWidth: 12 } }
+      }
+    }
+  });
+}
+
+function buildTopDrivers(data){
+  const box = document.getElementById('top-drivers-list');
+  if(!box || !data.length){ if(box) box.innerHTML='<span style="color:var(--muted);font-size:13px;">Aucune donnée disponible</span>'; return; }
+  const max = Math.max(...data.map(d => parseInt(d.nb_trajets)));
+  box.innerHTML = data.map((d, i) => {
+    const pct = Math.round((parseInt(d.nb_trajets) / max) * 100);
+    const medals = ['🥇','🥈','🥉','',''];
+    return `<div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:16px;width:20px;text-align:center;">${medals[i]||''}</span>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-size:13px;font-weight:500;">${d.chauffeur}</span>
+          <span style="font-size:12px;color:var(--muted);">${d.nb_trajets} trajets · ${parseInt(d.recette_totale).toLocaleString('fr-FR')} FCFA</span>
+        </div>
+        <div style="height:5px;background:var(--border);border-radius:99px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:var(--blue);border-radius:99px;transition:width .6s;"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 // Appliquer rôle
 if(_user){

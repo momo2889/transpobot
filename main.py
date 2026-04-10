@@ -132,6 +132,59 @@ def chat(request: Request, body: dict):
 
     return {"answer": build_fallback_answer(data) or explication, "count": count}
 
+# ===== ANALYTICS =====
+@app.get("/api/analytics/revenue-monthly")
+def analytics_revenue(request: Request):
+    get_current_user(request)
+    sql = """
+        SELECT DATE_FORMAT(date_heure_depart, '%Y-%m') as mois,
+               DATE_FORMAT(date_heure_depart, '%b %Y') as label,
+               COALESCE(SUM(recette), 0) as recette_totale,
+               COUNT(*) as nb_trajets
+        FROM trajets
+        WHERE statut = 'termine'
+          AND date_heure_depart >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)
+        GROUP BY mois, label
+        ORDER BY mois
+    """
+    return execute_query(sql)
+
+@app.get("/api/analytics/trips-by-line")
+def analytics_trips_line(request: Request):
+    get_current_user(request)
+    sql = """
+        SELECT l.code as ligne, l.nom, COUNT(*) as total
+        FROM trajets t
+        JOIN lignes l ON t.ligne_id = l.id
+        WHERE t.statut = 'termine'
+        GROUP BY l.id, l.code, l.nom
+        ORDER BY total DESC
+        LIMIT 8
+    """
+    return execute_query(sql)
+
+@app.get("/api/analytics/vehicles-status")
+def analytics_vehicles(request: Request):
+    get_current_user(request)
+    sql = "SELECT statut, COUNT(*) as total FROM vehicules GROUP BY statut"
+    return execute_query(sql)
+
+@app.get("/api/analytics/top-drivers")
+def analytics_drivers(request: Request):
+    get_current_user(request)
+    sql = """
+        SELECT CONCAT(c.prenom, ' ', c.nom) as chauffeur,
+               COUNT(*) as nb_trajets,
+               COALESCE(SUM(t.recette), 0) as recette_totale
+        FROM trajets t
+        JOIN chauffeurs c ON t.chauffeur_id = c.id
+        WHERE t.statut = 'termine'
+        GROUP BY c.id, chauffeur
+        ORDER BY nb_trajets DESC
+        LIMIT 5
+    """
+    return execute_query(sql)
+
 @app.get("/api/maintenance")
 def get_maintenance(request: Request):
     get_current_user(request)
